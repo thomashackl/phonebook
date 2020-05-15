@@ -1,0 +1,75 @@
+{
+    "name": "@studip/phonebook",
+    "version": "0.5.0",
+    "description": "A digital phoneboko for Stud.IP with REST API",
+    "license": "GPL-2.0-or-later",
+    "private": true,
+    "scripts": {
+        "extract-gettext-cli": "node_modules/.bin/gettext-extract --removeHTMLWhitespaces --attribute v-translate --output locale/phonebook-vue.pot $(find resources/vue/components -type f -name '*.vue')",
+        "compile-gettext-cli": "node_modules/.bin/gettext-compile --output locale/en/LC_MESSAGES/phonebook.json locale/en/LC_MESSAGES/phonebook.po",
+        "wds": "webpack-dev-server --progress --config webpack.dev-server.js",
+        "webpack-dev": "webpack --config webpack.dev.js --mode development",
+        "webpack-prod": "webpack --config webpack.prod.js --mode production"
+    },
+    "author": "Thomas Hackl <thomas.hackl@uni-passau.de>",
+    "repository": {
+        "type": "git",
+        "url": "https://vcs.zim.uni-passau.de/referat-applikationen/stud.ip/phonebook.git"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.9.6",
+        "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+        "@babel/preset-env": "^7.9.6",
+        "@babel/register": "^7.9.0",
+        "autoprefixer": "^9.7.6",
+        "babel-loader": "^8.1.0",
+        "css-loader": "^3.5.3",
+        "easygettext": "^2.13.0",
+        "es6-promise": "^4.2.8",
+        "expose-loader": "^0.7.5",
+        "libphonenumber-js": "^1.7.51",
+        "mini-css-extract-plugin": "^0.9.0",
+        "node-sass": "^4.14.1",
+        "optimize-css-assets-webpack-plugin": "^5.0.3",
+        "postcss-loader": "^3.0.0",
+        "sass-loader": "^8.0.2",
+        "style-loader": "^1.2.1",
+        "uglifyjs-webpack-plugin": "^2.2.0",
+        "vue": "^2.6.11",
+        "vue-gettext": "^2.1.8",
+        "vue-loader": "^15.9.2",
+        "vue-template-compiler": "^2.6.11",
+        "webpack": "^4.43.0",
+        "webpack-cli": "^3.3.11",
+        "webpack-dev-server": "^3.11.0",
+        "webpack-merge": "^4.2.2"
+    },
+    "babel": {
+        "presets": [
+            [
+                "@babel/preset-env"
+            ]
+        ],
+        "plugins": [
+            "@babel/plugin-syntax-dynamic-import"
+        ]
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions"
+    ],
+    "eslintConfig": {
+        "env": {
+            "browser": true
+        },
+        "parserOptions": {
+            "ecmaVersion": 6,
+            "sourceType": "module"
+        }
+    },
+    "prettier": {
+        "printWidth": 120,
+        "singleQuote": true,
+        "tabWidth": 4
+    }
+}

@@ -1,0 +1,7 @@
+pluginname=Telefonbuch
+pluginclassname=Phonebook
+origin=upa
+version=0.5.0
+description=Digital phonebook for Stud.IP
+studipMinVersion=4.5
+studipMaxVersion=4.9.99
