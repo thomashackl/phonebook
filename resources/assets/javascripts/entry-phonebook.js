@@ -23,7 +23,7 @@ window.Vue = Vue
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
-const files = require.context('../../vue/components', true, /Phonebook$/i)
+const files = require.context('../../vue/components', true, /Phonebook|PhonebookManualEntry$/i)
 
 files.keys().map(key =>
     Vue.component(

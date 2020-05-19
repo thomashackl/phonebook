@@ -7,7 +7,7 @@
                     <button type="submit" class="button" @click="doSearch">
                         <studip-icon shape="search"></studip-icon>
                     </button>
-                    <button v-if="searchterm.length > 0" type="submit" class="button" @click="clearSearch">
+                    <button v-if="searchterm.length > 0" type="submit" id="clear-search-button" @click="clearSearch">
                         <studip-icon shape="decline"></studip-icon>
                     </button>
                 </span>
@@ -17,7 +17,8 @@
                     <translate>Suchen in...</translate>
                 </legend>
                 <section>
-                    <input type="checkbox" id="search-in-phone-number" v-model="searchInPhoneNumber">
+                    <input type="checkbox" value="phone_number"
+                           id="search-in-phone-number" v-model="searchInPhoneNumber">
                     <label class="undecorated" for="search-in-phone-number">
                         <translate>
                             Telefonnummer
@@ -25,7 +26,8 @@
                     </label>
                 </section>
                 <section>
-                    <input type="checkbox" id="search-in-person-name" v-model="searchInPersonName">
+                    <input type="checkbox" value="person_name"
+                           id="search-in-person-name" v-model="searchInPersonName">
                     <label class="undecorated" for="search-in-person-name">
                         <translate>
                             Vor- und Nachname
@@ -33,7 +35,8 @@
                     </label>
                 </section>
                 <section>
-                    <input type="checkbox" id="search-in-institute-name" v-model="searchInInstituteName">
+                    <input type="checkbox" value="institute_name"
+                           id="search-in-institute-name" v-model="searchInInstituteName">
                     <label class="undecorated" for="search-in-institute-name">
                         <translate>
                             Einrichtungsname
@@ -41,7 +44,8 @@
                     </label>
                 </section>
                 <section>
-                    <input type="checkbox" id="search-in-institute-holder" v-model="searchInInstituteHolder">
+                    <input type="checkbox" value="institute_holder"
+                           id="search-in-institute-holder" v-model="searchInInstituteHolder">
                     <label class="undecorated" for="search-in-institute-holder">
                         <translate>
                             Einrichtungsleitung
@@ -51,16 +55,20 @@
             </fieldset>
         </form>
         <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult"></phonebook-search-result>
+        <studip-messagebox v-if="noResults" type="info"
+                           :message="noResultMessage"></studip-messagebox>
     </div>
 </template>
 
 <script>
     import StudipIcon from './StudipIcon'
     import PhonebookSearchResult from './PhonebookSearchResult'
+    import StudipMessagebox from "./StudipMessagebox";
 
     export default {
         name: 'Phonebook',
         components: {
+            StudipMessagebox,
             StudipIcon,
             PhonebookSearchResult
         },
@@ -73,7 +81,11 @@
                 searchInInstituteHolder: false,
                 // Translation for placeholder attribute in search input field
                 placeholder: this.$gettext('Suchen Sie nach Durchwahl, Name oder Einrichtung'),
-                searchResult: []
+                // Translation for message when no results are found
+                noResultMessage: this.$gettext('Keine Einträge gefunden.'),
+                noResults: false,
+                searchResult: [],
+                searching: false
             }
         },
         mounted() {
@@ -94,27 +106,48 @@
                 if (event != null) {
                     event.preventDefault()
                 }
-                this.searchResult = []
-                if (this.searchterm.trim().length > 0) {
-                    fetch(STUDIP.URLHelper.getURL('api.php/phonebook/search/' + encodeURI(this.searchterm.trim())))
-                        .then((response) => {
+
+                if (!this.searching) {
+                    this.searching = true
+                    this.searchResult = []
+                    if (this.searchterm.trim().length > 0) {
+
+                        const inputs = this.$el.querySelectorAll('.searchterm-filter input[type="checkbox"]:checked')
+                        let params = []
+                        for (let i = 0; i < inputs.length; i++) {
+                            params.push(inputs[i].value)
+                        }
+
+                        fetch(STUDIP.URLHelper.getURL(
+                            'api.php/phonebook/search/' + encodeURI(this.searchterm.trim()), {in: params.join(',')})
+                        ).then((response) => {
                             if (!response.ok) {
                                 throw response
                             }
                             response.json().then((json) => {
                                 this.searchResult = json
+                                this.searching = false
+                                this.noResults = (json.length == 0)
                             })
                         }).catch((error) => {
-                            console.log('Error:')
-                            console.log(error)
+                            let messagebox = document.createElement('div')
+                            messagebox.classList.add('messagebox')
+                            messagebox.classList.add('messagebox_error')
+                            messagebox.innerHTML = error.statusText
+
+                            STUDIP.Dialog.show(messagebox, {size: 'auto', title: 'Fehler ' + error.status})
+                            this.searching = false
                         })
-                } else {
-                    this.clearSearch()
+                    } else {
+                        this.clearSearch()
+                    }
                 }
             },
             clearSearch: function(event) {
                 this.searchterm = ''
                 this.searchResult = []
+                this.searching = false
+                this.noResults = false
             }
         }
     }
@@ -122,10 +155,10 @@
 
 <style lang="scss" scoped>
     div {
-        max-width: 600px;
-        width: 100%;
-
         form.default {
+            max-width: 600px;
+            width: 100%;
+
             section {
                 input {
                     max-width: 500px;
@@ -150,21 +183,38 @@
                         vertical-align: middle;
                     }
                 }
+
+                #clear-search-button {
+                    border: 0;
+                    left: -85px;
+                    position: relative;
+
+                    img, svg {
+                        vertical-align: middle;
+                    }
+                }
             }
 
             fieldset.searchterm-filter {
                 background-color: #e7ebf1;
                 font-size: smaller;
                 max-width: 547px;
+                padding: 0;
                 position: relative;
                 top: -2px;
 
                 legend {
                     font-size: small;
+                    margin-left: -1px;
+                    width: calc(100% + 2px);
                 }
 
                 section {
                     display: inline;
+
+                    &:first-of-type {
+                        margin-left: 10px;
+                    }
                 }
             }
         }

@@ -47,7 +47,10 @@
         },
         computed: {
             fullname: function() {
-                let name = this.entry.lastname + ', ' + this.entry.firstname
+                let name = this.entry.lastname
+                if (this.entry.firstname) {
+                    name += ', ' + this.entry.firstname
+                }
                 if (this.entry.title_front) {
                     name += ', ' + this.entry.title_front
                 }
@@ -68,7 +71,7 @@
             },
             dialable: function() {
                 const phoneNumber = parsePhoneNumberFromString(this.entry.phone)
-                if (phoneNumber.number) {
+                if (phoneNumber) {
                     return phoneNumber.number
                 } else {
                     return null
@@ -111,6 +114,8 @@
         .phonebook-phone {
             font-size: larger;
             font-weight: bold;
+            line-height: 50pt;
+            text-align: right;
             width: 250px;
 
             img, svg {

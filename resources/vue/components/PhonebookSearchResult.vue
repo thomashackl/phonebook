@@ -25,6 +25,7 @@
     #phonebook-entries {
         margin-right: 25px;
         margin-top: 25px;
+        max-width: 800px;
 
         section.phonebook-entry {
             padding: 5px;

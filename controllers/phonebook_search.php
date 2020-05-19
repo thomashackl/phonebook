@@ -31,7 +31,7 @@ class PhonebookSearchController extends AuthenticatedController {
     }
 
     /**
-     * Show authentication form for Vimeo OAuth
+     * Show phonebook search form and results if applicable
      */
     public function index_action()
     {
@@ -41,12 +41,17 @@ class PhonebookSearchController extends AuthenticatedController {
 
         Navigation::activateItem('/search/phonebook');
 
-        $sidebar = Sidebar::get();
-        $actions = new ActionsWidget();
-        $actions->addLink(dgettext('phonebook', 'Manuellen Eintrag hinzufügen'),
-            $this->link_for('manual/add'),
-            Icon::create('phone+add'));
-        $sidebar->addWidget($actions);
+        if ($GLOBALS['perm']->have_perm('root')) {
+            $sidebar = Sidebar::get();
+            $actions = new ActionsWidget();
+            $actions->addLink(dgettext('phonebook', 'Manuellen Eintrag hinzufügen'),
+                $this->link_for('phonebook_manual/edit'),
+                Icon::create('phone+add'));
+            $actions->addLink(dgettext('phonebook', 'Einrichtungsleitungen verwalten'),
+                $this->link_for('phonebook_holder_groups'),
+                Icon::create('group2'));
+            $sidebar->addWidget($actions);
+        }
     }
 
 }
