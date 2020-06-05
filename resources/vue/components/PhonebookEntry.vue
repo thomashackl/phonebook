@@ -1,7 +1,7 @@
 <template>
     <section class="phonebook-entry">
         <div class="phonebook-picture">
-            <a :href="profileUrl">
+            <a v-if="entry.picture != null" :href="profileUrl">
                 <img :src="entry.picture" :title="entry.firstname + ' ' + entry.lastname" width="64" height="64">
             </a>
         </div>
@@ -91,11 +91,14 @@
         flex-direction: row;
 
         .phonebook-picture {
-            box-shadow: 2px 2px 5px #aaaaaa;
             height: 64px;
             margin-right: 20px;
             padding: 2px;
             width: 64px;
+
+            img {
+                box-shadow: 2px 2px 5px #aaaaaa;
+            }
         }
 
         .phonebook-person {

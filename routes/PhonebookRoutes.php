@@ -42,8 +42,12 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 ]);
 
             array_walk($users, function (&$user, $index) {
-                $avatar = Avatar::getAvatar($user['user_id']);
-                $user['picture'] = $avatar->getURL(Avatar::MEDIUM);
+                if ($user['username']) {
+                    $avatar = Avatar::getAvatar($user['id']);
+                    $user['picture'] = $avatar->getURL(Avatar::MEDIUM);
+                } else {
+                    $user['picture'] = null;
+                }
             });
 
             $this->etag(md5(serialize($users)));
@@ -285,8 +289,11 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 p.`name` AS lastname,
                 '' AS title_front,
                 '' AS title_rear,
-                '' AS username,
-                inst.`Name` AS institute,
+                null AS username,
+                IFNULL(inst.`Name`, CONCAT_WS(
+                    ' ', u.`title_front`, a.`Vorname`, a.`Nachname`,
+                        IF(u.`title_rear` != '', CONCAT(', ', u.`title_rear`), ''))
+                    ) AS institute,
                 null AS gender,
                 '' AS statusgroup,
                 '' AS statusgroup_male,
@@ -296,7 +303,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
         $joins = [
             "LEFT JOIN `Institute` inst ON (inst.`Institut_id` = p.`range_id`)",
-            "LEFT JOIN `auth_user_md5` a ON (a.`user_id` = p.`range_id`)"
+            "LEFT JOIN `auth_user_md5` a ON (a.`user_id` = p.`range_id`)",
+            "LEFT JOIN `user_info` u ON (u.`user_id` = a.`user_id`)"
         ];
 
         $where = [

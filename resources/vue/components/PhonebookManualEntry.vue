@@ -110,7 +110,7 @@
                 formData.append('name', this.name)
                 formData.append('phone', this.phone)
                 if (this.range != '') {
-                    formData.append('range', this.range)
+                    formData.append('range_id', this.range)
                 }
 
                 fetch(STUDIP.URLHelper.getURL('api.php/phonebook/entry'), {
