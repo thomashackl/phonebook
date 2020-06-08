@@ -54,13 +54,15 @@
                 </section>
             </fieldset>
         </form>
-        <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult"></phonebook-search-result>
+        <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult"
+                                 :total-entries="total" :offset="offset" :limit="limit"></phonebook-search-result>
         <studip-messagebox v-if="noResults" type="info"
                            :message="noResultMessage"></studip-messagebox>
     </div>
 </template>
 
 <script>
+    import bus from 'jsassets/bus'
     import StudipIcon from './StudipIcon'
     import PhonebookSearchResult from './PhonebookSearchResult'
     import StudipMessagebox from "./StudipMessagebox";
@@ -85,6 +87,9 @@
                 noResultMessage: this.$gettext('Keine Einträge gefunden.'),
                 noResults: false,
                 searchResult: [],
+                total: 0,
+                offset: 0,
+                limit: 100,
                 searching: false
             }
         },
@@ -100,6 +105,11 @@
                     return false;
                 }
             });
+
+            bus.$on('change-page', (pageNum) => {
+                this.offset = this.limit * (pageNum - 1)
+                this.doSearch()
+            })
         },
         methods: {
             doSearch: function(event) {
@@ -119,13 +129,19 @@
                         }
 
                         fetch(STUDIP.URLHelper.getURL(
-                            'api.php/phonebook/search/' + encodeURI(this.searchterm.trim()), {in: params.join(',')})
+                            'api.php/phonebook/search/' + encodeURI(this.searchterm.trim()),
+                                {
+                                    in: params.join(','),
+                                    offset: this.offset,
+                                    limit: this.limit
+                                })
                         ).then((response) => {
                             if (!response.ok) {
                                 throw response
                             }
                             response.json().then((json) => {
-                                this.searchResult = json
+                                this.searchResult = json.collection
+                                this.total = json.pagination.total
                                 this.searching = false
                                 this.noResults = (json.length == 0)
                             })
@@ -146,6 +162,8 @@
             clearSearch: function(event) {
                 this.searchterm = ''
                 this.searchResult = []
+                this.total = 0
+                this.offset = 0
                 this.searching = false
                 this.noResults = false
             }

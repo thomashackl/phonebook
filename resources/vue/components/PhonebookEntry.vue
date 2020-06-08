@@ -118,6 +118,8 @@
             font-size: larger;
             font-weight: bold;
             line-height: 50pt;
+            margin-left: 10px;
+            margin-right: 10px;
             text-align: right;
             width: 250px;
 

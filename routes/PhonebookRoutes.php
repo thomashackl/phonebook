@@ -32,6 +32,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $in = explode(',', Request::get('in'));
 
+            $offset = Request::int('offset') ?: 0;
+            $limit = Request::int('limit') ?: 100;
+
             $query = $this->getUserSQL($in) . " UNION " . $this->getPhonebookSQL($in) .
                 " ORDER BY lastname, firstname, username, phone";
 
@@ -52,7 +55,12 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $this->etag(md5(serialize($users)));
 
-            return $users;
+            $params = [
+                'in' => Request::get('in')
+            ];
+
+            return $this->paginated(array_slice($users, $offset, $limit),
+                count($users), compact('searchterm'), $params);
         }
     }
 
