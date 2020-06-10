@@ -48,8 +48,8 @@ class PhonebookSearchController extends AuthenticatedController {
                 $this->link_for('phonebook_manual/edit'),
                 Icon::create('phone+add'));
             $actions->addLink(dgettext('phonebook', 'Einrichtungsleitungen verwalten'),
-                $this->link_for('phonebook_holder_groups'),
-                Icon::create('group2'));
+                $this->link_for('phonebook_holder_groups/groups'),
+                Icon::create('group2'))->asDialog('size=auto');
             $sidebar->addWidget($actions);
         }
     }

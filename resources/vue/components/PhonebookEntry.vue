@@ -62,9 +62,9 @@
             statusgroupGendered: function() {
                 switch (this.entry.gender) {
                     case '1':
-                        return this.entry.statusgroup_male
+                        return this.entry.statusgroup_male ? this.entry.statusgroup_male : this.entry.statusgroup
                     case '2':
-                        return this.entry.statusgroup_female
+                        return this.entry.statusgroup_female ? this.entry.statusgroup_female : this.entry.statusgroup
                     default:
                         return this.entry.statusgroup
                 }

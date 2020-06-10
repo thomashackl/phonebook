@@ -2,7 +2,7 @@
 
 namespace RESTAPI\Routes;
 
-use \Request, \DBManager, \Avatar, \URLHelper, \PhonebookEntry;
+use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry;
 
 /**
  * PhonebookRoutes - REST routes for phone book.
@@ -38,29 +38,40 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $query = $this->getUserSQL($in) . " UNION " . $this->getPhonebookSQL($in) .
                 " ORDER BY lastname, firstname, username, phone";
 
-            $users = DBManager::get()->fetchAll($query,
-                [
-                    'search' => '%' . urldecode($searchterm) . '%',
-                    'visibility' => words('yes always')
-                ]);
+            $parameters =                 [
+                'search' => '%' . urldecode($searchterm) . '%',
+                'visibility' => words('yes always')
+            ];
 
-            array_walk($users, function (&$user, $index) {
-                if ($user['username']) {
-                    $avatar = Avatar::getAvatar($user['id']);
-                    $user['picture'] = $avatar->getURL(Avatar::MEDIUM);
+            if (in_array('institute_holder', $in) &&
+                ($groups = Config::get()->PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS)) {
+                $parameters['groups'] = $groups;
+            }
+
+            $log = fopen('/Users/thomashackl/Downloads/phonebook.log', 'w');
+            fwrite($log, $query . "\n");
+            fwrite($log, print_r($parameters, 1) . "\n");
+            fclose($log);
+
+            $entries = DBManager::get()->fetchAll($query, $parameters);
+
+            array_walk($entries, function (&$entry, $index) {
+                if ($entry['type'] == 'user') {
+                    $avatar = Avatar::getAvatar($entry['id']);
+                    $entry['picture'] = $avatar->getURL(Avatar::MEDIUM);
                 } else {
-                    $user['picture'] = null;
+                    $entry['picture'] = null;
                 }
             });
 
-            $this->etag(md5(serialize($users)));
+            $this->etag(md5(serialize($entries)));
 
             $params = [
                 'in' => Request::get('in')
             ];
 
-            return $this->paginated(array_slice($users, $offset, $limit),
-                count($users), compact('searchterm'), $params);
+            return $this->paginated(array_slice($entries, $offset, $limit),
+                count($entries), compact('searchterm'), $params);
         }
     }
 
@@ -274,8 +285,14 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $where[] = "CONCAT_WS(' ', a.`Nachname`, a.`Vorname`) LIKE :search";
             $where[] = "a.`username` LIKE :search";
         }
+
         if (in_array('institute_name', $in)) {
             $where[] = "inst.`Name` LIKE :search";
+        }
+
+        if (in_array('institute_holder', $in)) {
+
+            $where[] = "inst.`Institut_id` IN (" . $this->getHolderSQL() . ")";
         }
 
         return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")
@@ -329,11 +346,35 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $where[] = "CONCAT_WS(' ', a.`Nachname`, a.`Vorname`) LIKE :search";
             $where[] = "a.`username` LIKE :search";
         }
+
         if (in_array('institute_name', $in)) {
             $where[] = "inst.`Name` LIKE :search";
         }
 
+        if (in_array('institute_holder', $in)) {
+            $where[] = "p.`range_id` IN (" . $this->getHolderSQL() . ")";
+        }
+
         return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")";
+    }
+
+    private function getHolderSQL()
+    {
+        return "SELECT ui.`institut_id`
+            FROM `user_inst` ui
+                JOIN `auth_user_md5` a ON (a.`user_id` = ui.`user_id`)
+                JOIN `statusgruppen` s ON (s.`range_id` = ui.`institut_id`)
+                JOIN `statusgruppe_user` su ON (
+                        su.`statusgruppe_id` = s.`statusgruppe_id` AND su.`user_id` = a.`user_id`
+                    )
+            WHERE s.`name` IN (:groups)
+                AND (
+                    a.`Vorname` LIKE :search
+                    OR a.`Nachname` LIKE :search
+                    OR CONCAT_WS(' ', a.`Vorname`, a.`Nachname`) LIKE :search
+                    OR CONCAT_WS(' ', a.`Nachname`, a.`Vorname`) LIKE :search
+                    OR a.`username` LIKE :search
+                )";
     }
 
 }

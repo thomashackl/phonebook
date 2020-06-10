@@ -35,9 +35,31 @@ class PhonebookHolderGroupsController extends AuthenticatedController {
     /**
      * Show configuration form for setting institute holder statusgroups.
      */
-    public function index_action()
+    public function groups_action()
     {
         Navigation::activateItem('/search/phonebook');
+
+        $this->allgroups = DBManager::get()->fetchFirst("SELECT DISTINCT s.`name`
+            FROM `statusgruppen` s
+                JOIN `Institute` i ON (i.`Institut_id` = s.`range_id`)
+            ORDER BY s.`name`");
+
+        $this->selected = Config::get()->PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS ?: [];
+    }
+
+    /**
+     * Store selected statusgroup to global configuration.
+     */
+    public function store_action()
+    {
+        if (Config::get()->store('PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS', Request::getArray('groups'))) {
+            Config::get()->PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS = Request::getArray('groups');
+            PageLayout::postSuccess(dgettext('phonebook', 'Die Daten wurden gespeichert.'));
+        } else {
+            PageLayout::postError(dgettext('phonebook', 'Die Daten konnten nicht gespeichert werden.'));
+        }
+
+        $this->relocate('phonebook_search');
     }
 
 }
