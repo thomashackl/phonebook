@@ -10,7 +10,8 @@
                   prev-text="&lt; " next-text=" &gt;"
                   :page-count="totalPages" :click-handler="changePage"
                   container-class="phonebook-paginate" page-class="phonebook-page"></paginate>
-        <phonebook-entry v-for="(entry, index) in entries" :key="index" :entry="entry"></phonebook-entry>
+        <phonebook-entry v-for="(entry, index) in entries" :key="index" :entry="entry"
+                         :edit-permission="mayEdit"></phonebook-entry>
     </article>
 </template>
 
@@ -41,13 +42,18 @@
             limit: {
                 type: Number,
                 default: 100
+            },
+            permission: {
+                type: String,
+                default: 'autor'
             }
         },
         data() {
             return {
                 loading: false,
                 prevText: this.$gettext('< Zurück'),
-                nextText: this.$gettext('Weiter >')
+                nextText: this.$gettext('Weiter >'),
+                mayEdit: this.permission == 'root'
             }
         },
         computed: {

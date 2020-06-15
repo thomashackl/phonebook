@@ -54,7 +54,7 @@
                 </section>
             </fieldset>
         </form>
-        <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult"
+        <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult" :permission="permission"
                                  :total-entries="total" :offset="offset" :limit="limit"></phonebook-search-result>
         <studip-messagebox v-if="noResults" type="info"
                            :message="noResultMessage"></studip-messagebox>
@@ -73,6 +73,12 @@
             StudipMessagebox,
             StudipIcon,
             PhonebookSearchResult
+        },
+        props: {
+            permission: {
+                type: String,
+                default: 'autor'
+            }
         },
         data() {
             return {

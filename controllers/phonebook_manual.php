@@ -57,6 +57,32 @@ class PhonebookManualController extends AuthenticatedController {
                 'faculty' => $one['fakultaets_id']
             ];
         }
+
+        if ($id != 0) {
+            $entry = PhonebookEntry::find($id);
+        } else {
+            $entry = new PhonebookEntry();
+        }
+
+        // Check which type of object the range_id points to.
+        if ($entry->range_id) {
+            $range = User::find($entry->range_id);
+            if ($range) {
+                $rangeName = $range->getFullname();
+            } else {
+                $range = Institute::find($entry->range_id);
+                $rangeName = (string) $range->name;
+            }
+        }
+
+        $this->entry = [
+            'id' => $entry->id,
+            'name' => $entry->name,
+            'range_id' => $entry->range_id,
+            'range_name' => $rangeName,
+            'range_type' => strtolower(get_class($range)),
+            'phone' => $entry->phone
+        ];
     }
 
 }

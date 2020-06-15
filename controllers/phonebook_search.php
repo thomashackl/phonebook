@@ -39,7 +39,9 @@ class PhonebookSearchController extends AuthenticatedController {
             throw new AccessDeniedException();
         }
 
-        Navigation::activateItem('/search/phonebook');
+        Navigation::activateItem('/search/phonebook/search');
+
+        $this->permission = $GLOBALS['perm']->get_perm();
 
         if ($GLOBALS['perm']->have_perm('root')) {
             $sidebar = Sidebar::get();

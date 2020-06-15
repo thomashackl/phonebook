@@ -48,11 +48,6 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 $parameters['groups'] = $groups;
             }
 
-            $log = fopen('/Users/thomashackl/Downloads/phonebook.log', 'w');
-            fwrite($log, $query . "\n");
-            fwrite($log, print_r($parameters, 1) . "\n");
-            fclose($log);
-
             $entries = DBManager::get()->fetchAll($query, $parameters);
 
             array_walk($entries, function (&$entry, $index) {
@@ -148,7 +143,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
         if ($entry) {
 
-            if ($this->data['name'] !== null) {
+            if (isset($this->data['name']) && $this->data['name'] !== '') {
                 if (trim($this->data['name']) != '') {
                     $entry->name = trim($this->data['name']);
                 } else {
@@ -156,12 +151,16 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 }
             }
 
-            if ($this->data['phone'] !== null) {
+            if (isset($this->data['phone']) && $this->data['phone'] !== '') {
                 if (trim($this->data['phone']) != '') {
                     $entry->phone = trim($this->data['phone']);
                 } else {
                     $this->error(422, 'A phone number for the entry is required.');
                 }
+            }
+
+            if (isset($this->data['range'])) {
+                $entry->range_id = trim($this->data['range']) ?: null;
             }
 
             $entry->chdate = date('Y-m-d H:i:s');

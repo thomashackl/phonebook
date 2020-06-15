@@ -1,15 +1,23 @@
 <template>
     <section class="phonebook-entry">
         <div class="phonebook-picture">
-            <a v-if="entry.picture != null" :href="profileUrl">
+            <a v-if="entry.type == 'user' && entry.picture != null" :href="profileUrl">
+                <img :src="entry.picture" :title="entry.firstname + ' ' + entry.lastname" width="64" height="64">
+            </a>
+            <a v-if="entry.type != 'user' && entry.picture != null">
                 <img :src="entry.picture" :title="entry.firstname + ' ' + entry.lastname" width="64" height="64">
             </a>
         </div>
         <div class="phonebook-person">
             <div class="phonebook-name">
-                <a :href="profileUrl">
+                <a v-if="entry.type == 'user'" :href="profileUrl">
                     {{ fullname }}
                 </a>
+                <template v-else>
+                    {{ fullname }}
+                </template>
+                <studip-icon v-if="entry.type == 'phonebook' && editPermission" shape="edit"
+                             width="20" height="20" @click="editEntry(entry.id)"></studip-icon>
             </div>
             <div class="phonebook-institute">
                 {{ entry.institute }}
@@ -43,6 +51,10 @@
             entry: {
                 type: Object,
                 required: true
+            },
+            editPermission: {
+                type: Boolean,
+                default: false
             }
         },
         computed: {
@@ -80,6 +92,11 @@
             profileUrl: function() {
                 return STUDIP.URLHelper.getURL('dispatch.php/profile', {username: this.entry.username})
             }
+        },
+        methods: {
+            editEntry: function(id) {
+                window.location = STUDIP.URLHelper.getURL('plugins.php/phonebook/phonebook_manual/edit/' + id)
+            }
         }
     }
 </script>
@@ -106,6 +123,10 @@
 
             .phonebook-name {
                 font-weight: bold;
+
+                img, svg {
+                    cursor: pointer;
+                }
             }
 
             .phonebook-institute {

@@ -26,6 +26,9 @@ class Phonebook extends StudIPPlugin implements SystemPlugin, RESTAPIPlugin {
 
         $navigation = new Navigation(dgettext('phonebook', 'Telefonbuch'),
             PluginEngine::getURL($this, [], 'phonebook_search'));
+        $navigation->addSubNavigation('search', new Navigation(
+            dgettext('phonebook', 'Suche'),
+            PluginEngine::getURL($this, [], 'phonebook_search')));
         Navigation::addItem('/search/phonebook', $navigation);
     }
 
