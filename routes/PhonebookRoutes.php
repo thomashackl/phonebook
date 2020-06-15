@@ -53,7 +53,11 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             array_walk($entries, function (&$entry, $index) {
                 if ($entry['type'] == 'user') {
                     $avatar = Avatar::getAvatar($entry['id']);
+
                     $entry['picture'] = $avatar->getURL(Avatar::MEDIUM);
+                    if ($avatar->is_customized()) {
+                        $entry['picture_customized'] = true;
+                    }
                 } else {
                     $entry['picture'] = null;
                 }
