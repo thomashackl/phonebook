@@ -35,23 +35,25 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $offset = Request::int('offset') ?: 0;
             $limit = Request::int('limit') ?: 100;
 
-            $query = $this->getUserSQL($in) . " UNION " . $this->getPhonebookSQL($in) .
-                " ORDER BY lastname, firstname, username, phone";
+            $query = $this->getUserSQL($in) .
+                " UNION " . $this->getPhonebookSQL($in) .
+                " UNION " . $this->getInstituteSQL($in) .
+                " ORDER BY lastname, firstname, username, institute, statusgroup, phone";
 
             $parameters =                 [
                 'search' => '%' . urldecode($searchterm) . '%',
                 'visibility' => words('yes always')
             ];
 
-            if (in_array('institute_holder', $in) &&
-                ($groups = Config::get()->PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS)) {
+            if (in_array('institute_holder', $in)) {
+                $groups = Config::get()->PHONEBOOK_INSTITUTE_HOLDER_STATUSGROUPS ?: [];
                 $parameters['groups'] = $groups;
             }
 
             $entries = DBManager::get()->fetchAll($query, $parameters);
 
             array_walk($entries, function (&$entry, $index) {
-                if ($entry['type'] == 'user') {
+                if (in_array($entry['type'], ['user', 'institute'])) {
                     $avatar = Avatar::getAvatar($entry['id']);
 
                     $entry['picture'] = $avatar->getURL(Avatar::MEDIUM);
@@ -60,6 +62,18 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                     }
                 } else {
                     $entry['picture'] = null;
+                }
+
+                switch ($entry['type']) {
+                    case 'user':
+                        $entry['link'] = URLHelper::getLink('dispatch.php/profile', ['username' => $entry['username']]);
+                        break;
+                    case 'institute':
+                        $entry['link'] = URLHelper::getLink('dispatch.php/institute/overview', ['cid' => $entry['id']]);
+                        break;
+                    default:
+                        $entry['link'] = '';
+                        break;
                 }
             });
 
@@ -262,7 +276,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 s.`name` AS statusgroup,
                 s.`name_m` AS statusgroup_male,
                 s.`name_w` AS statusgroup_female,
-                ui.`Telefon` AS phone
+                ui.`Telefon` AS phone,
+                ui.`Fax` AS fax
             FROM `auth_user_md5` a ";
 
         $joins = [
@@ -279,6 +294,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         $where = [];
         if (in_array('phone_number', $in)) {
             $where[] = "ui.`Telefon` LIKE :search";
+            $where[] = "ui.`Fax` LIKE :search";
         }
 
         if (in_array('person_name', $in)) {
@@ -294,12 +310,57 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         }
 
         if (in_array('institute_holder', $in)) {
-
             $where[] = "inst.`Institut_id` IN (" . $this->getHolderSQL() . ")";
         }
 
         return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")
                 AND a.`visible` IN (:visibility) AND ui.`Telefon` != ''";
+    }
+
+    /**
+     * Generates SQL for getting institute data.
+     *
+     * @param array $in fields to search in
+     * @return string SQL
+     */
+    private function getInstituteSQL($in)
+    {
+        $query = "SELECT DISTINCT
+                i.`Institut_id` AS id,
+                'institute' AS type,
+                '' AS firstname,
+                i.`Name` AS lastname,
+                '' AS title_front,
+                '' AS title_rear,
+                '' AS username,
+                '' AS institute,
+                0 AS gender,
+                '' AS statusgroup,
+                '' AS statusgroup_male,
+                '' AS statusgroup_female,
+                i.`telefon` AS phone,
+                i.`fax` AS fax
+            FROM `Institute` i ";
+
+        $where = [];
+        if (in_array('phone_number', $in)) {
+            $where[] = "i.`telefon` LIKE :search";
+            $where[] = "i.`fax` LIKE :search";
+        }
+
+        if (in_array('person_name', $in)) {
+            $where[] = "i.`Name` LIKE :search";
+        }
+
+        if (in_array('institute_name', $in)) {
+            $where[] = "i.`Name` LIKE :search";
+        }
+
+        if (in_array('institute_holder', $in)) {
+            $where[] = "i.`Institut_id` IN (" . $this->getHolderSQL() . ")";
+        }
+
+        return $query . " WHERE (" . implode(' OR ', $where) . ") AND i.`telefon` != ''";
     }
 
     /**
@@ -326,7 +387,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup,
                 '' AS statusgroup_male,
                 '' AS statusgroup_female,
-                p.`phone`
+                p.`phone`,
+                '' AS fax
             FROM `phonebook` p ";
 
         $joins = [

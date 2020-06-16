@@ -10,7 +10,7 @@
         </div>
         <div class="phonebook-person">
             <div class="phonebook-name">
-                <a v-if="entry.type == 'user'" :href="profileUrl">
+                <a v-if="entry.link != ''" :href="entry.link">
                     {{ fullname }}
                 </a>
                 <template v-else>
@@ -34,6 +34,9 @@
             <template v-else>
                 {{ entry.phone }}
             </template>
+            <div v-if="entry.fax != ''" class="phonebook-fax">
+                Fax: {{ entry.fax }}
+            </div>
         </div>
     </section>
 </template>
@@ -88,9 +91,6 @@
                 } else {
                     return null
                 }
-            },
-            profileUrl: function() {
-                return STUDIP.URLHelper.getURL('dispatch.php/profile', {username: this.entry.username})
             }
         },
         methods: {
@@ -138,14 +138,20 @@
         .phonebook-phone {
             font-size: larger;
             font-weight: bold;
-            line-height: 50pt;
             margin-left: 10px;
             margin-right: 10px;
+            margin-top: 10px;
             text-align: right;
             width: 250px;
 
             img, svg {
                 vertical-align: middle;
+            }
+
+            div.phonebook-fax {
+                font-size: small;
+                line-height: 12px;
+                margin-top: 5px;
             }
         }
 
