@@ -16,14 +16,20 @@
                 <template v-else>
                     {{ fullname }}
                 </template>
+                <div v-if="entry.info" class="phonebook-extra-info">
+                    ({{ entry.info }})
+                </div>
                 <studip-icon v-if="entry.type == 'phonebook' && editPermission" shape="edit"
                              width="20" height="20" @click="editEntry(entry.id)"></studip-icon>
             </div>
             <div class="phonebook-institute">
                 {{ entry.institute }}
-                <span v-if="entry.room != ''">({{ entry.room }})</span>
                 <br>
                 {{ statusgroupGendered }}
+                <template v-if="entry.room != ''">
+                    <template v-if="statusgroupGendered != ''">,</template>
+                    <translate>Raum</translate> {{ entry.room }}
+                </template>
             </div>
         </div>
         <div class="phonebook-phone">
@@ -127,6 +133,11 @@
 
                 img, svg {
                     cursor: pointer;
+                }
+
+                .phonebook-extra-info {
+                    display: inline;
+                    font-weight: normal;
                 }
             }
 

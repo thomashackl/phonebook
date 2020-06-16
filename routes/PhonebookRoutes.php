@@ -2,7 +2,7 @@
 
 namespace RESTAPI\Routes;
 
-use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry;
+use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, \DatafieldEntryModel;
 
 /**
  * PhonebookRoutes - REST routes for phone book.
@@ -41,7 +41,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $parameters =                 [
                 'search' => '%' . urldecode($searchterm) . '%',
-                'visibility' => words('yes always')
+                'visibility' => words('yes always'),
+                'datafield' => Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID
             ];
 
             if (in_array('institute_holder', $in)) {
@@ -186,7 +187,6 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
                 $this->status(204);
                 $this->headers(['Content-Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id)]);
-                $this->etag(md5(serialize($entry->toArray())));
 
             } else {
 
@@ -198,6 +198,109 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         } else {
 
             $this->error(404, 'Entry with the given ID not found.');
+
+        }
+    }
+
+    /**
+     * Deletes the given entry from phonebook.
+     *
+     * @delete /phonebook/entry/:id
+     */
+    public function deleteEntry($id)
+    {
+        if ($entry = PhonebookEntry::find($id)) {
+
+            if ($entry->delete() !== false) {
+                $this->status(204);
+            } else {
+                $this->error(500, 'Could not delete entry from database.');
+            }
+
+        } else {
+
+            $this->error(404, 'Entry with the given ID not found.');
+
+        }
+    }
+
+    /**
+     * Set userinfo for given user at given institute.
+     *
+     * @put /phonebook/userinfo/:username/:institute
+     */
+    public function setExtraInfo($username, $institute)
+    {
+        if ($user = User::findOneByUsername($username)) {
+
+            if (InstituteMember::exists($user->id, $institute)) {
+
+                $entry = DatafieldEntryModel::find([
+                    Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID,
+                    $user->id,
+                    $institute,
+                    ''
+                ]);
+
+                if (!$entry) {
+                    $entry = new DatafieldEntryModel();
+                    $entry->datafield_id = Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID;
+                    $entry->range_id = $user->id;
+                    $entry->sec_range_id = $institute;
+                    $entry->lang = '';
+                }
+
+                $entry->content = $this->data['info'];
+
+                if ($entry->store() !== false) {
+                    $this->status(200);
+                    return $entry->toArray();
+                } else {
+                    $this->error(500, 'Could not store extra user info.');
+                }
+
+            } else {
+                $this->error(400, 'User not assigned to given institute.');
+            }
+
+        } else {
+
+            $this->error(404, 'Given username not found.');
+
+        }
+    }
+
+    /**
+     * Delete userinfo for given user at given institute.
+     *
+     * @delete /phonebook/userinfo/:username/:institute
+     */
+    public function deleteExtraInfo($username, $institute)
+    {
+        if ($user = User::findOneByUsername($username)) {
+
+            $entry = DatafieldEntryModel::find([
+                Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID,
+                $user->id,
+                $institute,
+                ''
+            ]);
+
+            if (!$entry) {
+                $this->error(404, 'No content found, none deleted.');
+            } else {
+
+                if ($entry->delete() !== false) {
+                    $this->status(204);
+                } else {
+                    $this->error(500, 'Could not delete extra user info.');
+                }
+
+            }
+
+        } else {
+
+            $this->error(404, 'Given username not found.');
 
         }
     }
@@ -277,7 +380,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 s.`name_w` AS statusgroup_female,
                 ui.`Telefon` AS phone,
                 ui.`Fax` AS fax,
-                ui.`raum` AS room
+                ui.`raum` AS room,
+                IFNULL(e.`content`, '') AS info
             FROM `auth_user_md5` a ";
 
         $joins = [
@@ -288,7 +392,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             "JOIN `statusgruppen` s ON (
                     s.`statusgruppe_id` = us.`statusgruppe_id`
                     AND s.`range_id` = inst.`Institut_id`
-                )"
+                )",
+            "LEFT JOIN `datafields_entries` e ON (e.`range_id` = a.`user_id` AND e.`sec_range_id` = inst.`Institut_id` AND e.`datafield_id` = :datafield)"
         ];
 
         $where = [];
@@ -344,7 +449,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_female,
                 i.`telefon` AS phone,
                 i.`fax` AS fax,
-                '' AS room
+                '' AS room,
+                '' AS info
             FROM `Institute` i ";
 
         $where = [];
@@ -394,7 +500,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_female,
                 p.`phone`,
                 '' AS fax,
-                '' AS room
+                '' AS room,
+                '' AS info
             FROM `phonebook` p ";
 
         $joins = [
