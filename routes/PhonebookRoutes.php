@@ -37,7 +37,6 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $query = $this->getUserSQL($in) .
                 " UNION " . $this->getPhonebookSQL($in) .
-                " UNION " . $this->getInstituteSQL($in) .
                 " ORDER BY lastname, firstname, username, institute, statusgroup, phone";
 
             $parameters =                 [
@@ -277,7 +276,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 s.`name_m` AS statusgroup_male,
                 s.`name_w` AS statusgroup_female,
                 ui.`Telefon` AS phone,
-                ui.`Fax` AS fax
+                ui.`Fax` AS fax,
+                ui.`raum` AS room
             FROM `auth_user_md5` a ";
 
         $joins = [
@@ -307,6 +307,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
         if (in_array('institute_name', $in)) {
             $where[] = "inst.`Name` LIKE :search";
+        }
+
+        if (in_array('room', $in)) {
+            $where[] = "ui.`raum` LIKE :search";
         }
 
         if (in_array('institute_holder', $in)) {
@@ -339,7 +343,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_male,
                 '' AS statusgroup_female,
                 i.`telefon` AS phone,
-                i.`fax` AS fax
+                i.`fax` AS fax,
+                '' AS room
             FROM `Institute` i ";
 
         $where = [];
@@ -388,7 +393,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_male,
                 '' AS statusgroup_female,
                 p.`phone`,
-                '' AS fax
+                '' AS fax,
+                '' AS room
             FROM `phonebook` p ";
 
         $joins = [

@@ -18,7 +18,7 @@
                 </legend>
                 <section>
                     <input type="checkbox" value="phone_number"
-                           id="search-in-phone-number" v-model="searchInPhoneNumber">
+                           id="search-in-phone-number" v-model="searchInPhoneNumber" @click="doSearch()">
                     <label class="undecorated" for="search-in-phone-number">
                         <translate>
                             Telefonnummer
@@ -27,7 +27,7 @@
                 </section>
                 <section>
                     <input type="checkbox" value="person_name"
-                           id="search-in-person-name" v-model="searchInPersonName">
+                           id="search-in-person-name" v-model="searchInPersonName" @click="doSearch()">
                     <label class="undecorated" for="search-in-person-name">
                         <translate>
                             Vor- und Nachname
@@ -36,7 +36,7 @@
                 </section>
                 <section>
                     <input type="checkbox" value="institute_name"
-                           id="search-in-institute-name" v-model="searchInInstituteName">
+                           id="search-in-institute-name" v-model="searchInInstituteName" @click="doSearch()">
                     <label class="undecorated" for="search-in-institute-name">
                         <translate>
                             Einrichtungsname
@@ -44,8 +44,17 @@
                     </label>
                 </section>
                 <section>
+                    <input type="checkbox" value="room"
+                           id="search-in-room" v-model="searchInRoom" @click="doSearch()">
+                    <label class="undecorated" for="search-in-room">
+                        <translate>
+                            Raum
+                        </translate>
+                    </label>
+                </section>
+                <section>
                     <input type="checkbox" value="institute_holder"
-                           id="search-in-institute-holder" v-model="searchInInstituteHolder">
+                           id="search-in-institute-holder" v-model="searchInInstituteHolder" @click="doSearch()">
                     <label class="undecorated" for="search-in-institute-holder">
                         <translate>
                             Einrichtungsleitung
@@ -86,6 +95,7 @@
                 searchInPhoneNumber: true,
                 searchInPersonName: true,
                 searchInInstituteName: true,
+                searchInRoom: false,
                 searchInInstituteHolder: false,
                 // Translation for placeholder attribute in search input field
                 placeholder: this.$gettext('Suchen Sie nach Durchwahl, Name oder Einrichtung'),
@@ -126,9 +136,11 @@
                 if (!this.searching) {
                     this.searching = true
                     this.searchResult = []
-                    if (this.searchterm.trim().length > 0) {
 
-                        const inputs = this.$el.querySelectorAll('.searchterm-filter input[type="checkbox"]:checked')
+                    const inputs = this.$el.querySelectorAll('.searchterm-filter input[type="checkbox"]:checked')
+
+                    if (this.searchterm.trim().length > 0 && inputs.length > 0) {
+
                         let params = []
                         for (let i = 0; i < inputs.length; i++) {
                             params.push(inputs[i].value)

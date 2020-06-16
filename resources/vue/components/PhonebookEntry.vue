@@ -21,6 +21,7 @@
             </div>
             <div class="phonebook-institute">
                 {{ entry.institute }}
+                <span v-if="entry.room != ''">({{ entry.room }})</span>
                 <br>
                 {{ statusgroupGendered }}
             </div>
