@@ -20,6 +20,18 @@
                 </label>
                 <input id="entry-phone" type="text" size="75" maxlength="255" v-model="phone">
             </section>
+            <section>
+                <label for="entry-info">
+                    <translate>Info</translate>
+                </label>
+                <textarea id="entry-info" cols="75" rows="3" v-model="info"></textarea>
+            </section>
+            <section>
+                <label for="entry-external-id">
+                    <translate>Externe ID</translate>
+                </label>
+                <input id="entry-external-id" type="text" size="75" maxlength="255" v-model="externalId">
+            </section>
         </fieldset>
         <fieldset>
             <legend>
@@ -45,6 +57,18 @@
                     <studip-icon shape="decline" height="20" width="20"
                                  @click="clearRange"></studip-icon>
                 </template>
+            </section>
+            <section class="col-2">
+                <label for="entry-building">
+                    <translate>Gebäude</translate>
+                </label>
+                <input id="entry-building" type="text" size="75" maxlength="255" v-model="building">
+            </section>
+            <section class="col-2">
+                <label for="entry-room">
+                    <translate>Raum</translate>
+                </label>
+                <input id="entry-room" type="text" size="75" maxlength="255" v-model="room">
             </section>
         </fieldset>
         <footer data-dialog-button>
@@ -81,7 +105,11 @@
             return {
                 name: this.entry.name,
                 phone: this.entry.phone,
+                info: this.entry.info,
+                building: this.entry.building,
+                room: this.entry.room,
                 range: this.entry.range_id,
+                externalId: this.entry.external_id,
                 ranges: [],
                 searchterm: '',
                 placeholderText: this.$gettext('Einrichtung oder Person suchen'),
@@ -90,7 +118,6 @@
             }
         },
         mounted() {
-            console.log('"' + this.entry.range_id + '"')
             if (this.entry.range_id) {
                 this.ranges = [{id: this.entry.range_id, type: this.entry.range_type, name: this.entry.range_name}]
             }
@@ -147,6 +174,18 @@
                 }
                 if (this.phone != this.entry.phone) {
                     formData.append('phone', this.phone)
+                }
+                if (this.info != this.entry.info) {
+                    formData.append('info', this.info)
+                }
+                if (this.externalId != this.entry.external_id) {
+                    formData.append('external_id', this.externalId)
+                }
+                if (this.building != this.entry.building) {
+                    formData.append('building', this.building)
+                }
+                if (this.room != this.entry.room) {
+                    formData.append('room', this.room)
                 }
                 if (this.range != this.entry.range_id) {
                     formData.append('range', this.range)

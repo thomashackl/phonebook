@@ -18,7 +18,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      * Searchterm can be part of a phone number, a person name or an
      * institution name.
      *
-     * You can specify the fields to search in via the query parameter "in"
+     * You can specify the fields to search in via the query parameter "in",
+     * offset and limit can be given accordingly via request.
      *
      * @get /phonebook/search/:searchterm
      */
@@ -32,8 +33,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $in = explode(',', Request::get('in'));
 
-            $offset = Request::int('offset') ?: 0;
-            $limit = Request::int('limit') ?: 100;
+            $offset = Request::int('offset', 0);
+            $limit = Request::int('limit', $this->forceLimit ?: 100);
+            $this->limit = $limit;
 
             $query = $this->getUserSQL($in) .
                 " UNION " . $this->getPhonebookSQL($in) .
@@ -89,6 +91,22 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     }
 
     /**
+     * Fetches all phonebook entries in paginated form.
+     *
+     * Offset and limit can be specified via request parameters.
+     *
+     * @get /phonebook/all
+     */
+    public function getAll()
+    {
+        Request::set('in', 'person_name');
+
+        $this->forceLimit = Request::int('limit', 500);
+
+        return $this->search('%25');
+    }
+
+    /**
      * Gets the entry with the given ID. This only applies for entries in the
      * "phonebook" database table. "Normal" Stud.IP users can be fetched via
      * core API routes.
@@ -104,6 +122,25 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             return $entry->toArray();
         } else {
             $this->error(404, 'Entry with the given ID not found.');
+        }
+    }
+
+    /**
+     * Gets the entry with the given external ID. This only applies for entries in the
+     * "phonebook" database table. "Normal" Stud.IP users can be fetched via
+     * core API routes.
+     *
+     * @get /phonebook/entry/external/:id
+     */
+    public function getEntryByExternal_id($id)
+    {
+        $entry = PhonebookEntry::findOneByExternal_id($id);
+
+        if ($entry) {
+            $this->status(200);
+            return $entry->toArray();
+        } else {
+            $this->error(404, 'Entry with the given external ID not found.');
         }
     }
 
@@ -133,6 +170,24 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         if ($this->data['range_id']) {
             $entry->range_id = $this->data['range_id'];
         }
+
+        if ($this->data['info']) {
+            $entry->info = trim($this->data['info']);
+        }
+
+        if ($this->data['external_id']) {
+            $entry->external_id = trim($this->data['external_id']);
+        }
+
+        if ($this->data['building']) {
+            $entry->building = trim($this->data['building']);
+        }
+
+        if ($this->data['room']) {
+            $entry->room = trim($this->data['room']);
+        }
+
+        $entry->creator = User::findCurrent()->id;
 
         $entry->mkdate = date('Y-m-d H:i:s');
         $entry->chdate = date('Y-m-d H:i:s');
@@ -177,8 +232,24 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 }
             }
 
+            if (isset($this->data['info']) && $this->data['info'] !== '') {
+                $entry->info = trim($this->data['info']) ?: null;
+            }
+
+            if (isset($this->data['external_ id']) && $this->data['external_id'] !== '') {
+                $entry->external_id = trim($this->data['external_id']) ?: null;
+            }
+
             if (isset($this->data['range'])) {
                 $entry->range_id = trim($this->data['range']) ?: null;
+            }
+
+            if (isset($this->data['building']) && $this->data['building'] !== '') {
+                $entry->building = trim($this->data['building']) ?: null;
+            }
+
+            if (isset($this->data['room']) && $this->data['room'] !== '') {
+                $entry->room = trim($this->data['room']) ?: null;
             }
 
             $entry->chdate = date('Y-m-d H:i:s');
@@ -203,6 +274,17 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     }
 
     /**
+     * Updates the entry with the given external ID.
+     *
+     * @patch /phonebook/entry/external/:id
+     */
+    public function updateEntryByExternalId($id)
+    {
+        $entry = PhonebookEntry::findOneByExternal_id($id);
+        return $this->updateEntry($entry->id);
+    }
+
+    /**
      * Deletes the given entry from phonebook.
      *
      * @delete /phonebook/entry/:id
@@ -222,6 +304,17 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $this->error(404, 'Entry with the given ID not found.');
 
         }
+    }
+
+    /**
+     * Deletes the given entry from phonebook.
+     *
+     * @delete /phonebook/entry/external/:id
+     */
+    public function deleteEntryByExternalId($id)
+    {
+        $entry = PhonebookEntry::findOneByExternal_id($id);
+        return $this->deleteEntry($entry->id);
     }
 
     /**
@@ -380,6 +473,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 s.`name_w` AS statusgroup_female,
                 ui.`Telefon` AS phone,
                 ui.`Fax` AS fax,
+                '' AS building,
                 ui.`raum` AS room,
                 IFNULL(e.`content`, '') AS info
             FROM `auth_user_md5` a ";
@@ -449,6 +543,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_female,
                 i.`telefon` AS phone,
                 i.`fax` AS fax,
+                '' AS building,
                 '' AS room,
                 '' AS info
             FROM `Institute` i ";
@@ -500,8 +595,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS statusgroup_female,
                 p.`phone`,
                 '' AS fax,
-                '' AS room,
-                '' AS info
+                p.`building`,
+                p.`room`,
+                p.`info`
             FROM `phonebook` p ";
 
         $joins = [

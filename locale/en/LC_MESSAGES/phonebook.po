@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-24 08:12+0200\n"
-"PO-Revision-Date: 2020-06-24 08:19+0200\n"
+"POT-Creation-Date: 2020-08-24 13:00+0200\n"
+"PO-Revision-Date: 2020-08-24 13:06+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: easygettext\n"
 "Project-Id-Version: \n"
-"X-Generator: Poedit 2.3.1\n"
+"X-Generator: Poedit 2.4.1\n"
 "Last-Translator: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Language: en\n"
@@ -37,19 +37,19 @@ msgstr "Add manual entry"
 
 #: controllers/phonebook_search.php:52
 msgid "Einrichtungsleitungen verwalten"
-msgstr "Manage institute holders"
+msgstr "Manage institution leaders"
 
 #: controllers/phonebook_holder_groups.php:57
 msgid "Die Daten wurden gespeichert."
-msgstr "Data has been saved."
+msgstr "The data has been saved."
 
 #: controllers/phonebook_holder_groups.php:59
 msgid "Die Daten konnten nicht gespeichert werden."
-msgstr "Data could not be saved."
+msgstr "The data could not be saved."
 
 #: controllers/phonebook_manual.php:43
 msgid "Eintrag im Telefonbuch anlegen"
-msgstr "Create phonebook entry"
+msgstr "Add phonebook entry"
 
 #: controllers/phonebook_manual.php:44
 msgid "Eintrag im Telefonbuch bearbeiten"
@@ -59,19 +59,19 @@ msgstr "Edit phonebook entry"
 msgid ""
 "Welche Statusgruppen sollen berücksichtigt werden, um Einrichtungsleitungen "
 "zu finden?"
-msgstr "Which institute statusgroups represent holders?"
+msgstr "Which statusgroups are used to specify institution holders?"
 
 #: views/phonebook_holder_groups/groups.php:8
 msgid "bitte auswählen"
 msgstr "please choose"
 
 #: views/phonebook_holder_groups/groups.php:17
-#: resources/vue/components/PhonebookManualEntry.vue:88
+#: resources/vue/components/PhonebookManualEntry.vue:116
 msgid "Speichern"
 msgstr "Save"
 
 #: views/phonebook_holder_groups/groups.php:19
-#: resources/vue/components/PhonebookManualEntry.vue:89
+#: resources/vue/components/PhonebookManualEntry.vue:117
 msgid "Abbrechen"
 msgstr "Cancel"
 
@@ -85,26 +85,38 @@ msgstr[1] "%{ totalEntries } entries found."
 msgid "< Zurück"
 msgstr "< Back"
 
-#: resources/vue/components/PhonebookManualEntry.vue:87
+#: resources/vue/components/PhonebookManualEntry.vue:115
 msgid "Einrichtung oder Person suchen"
-msgstr "Search for institute or person"
+msgstr "Search institution or person"
 
-#: resources/vue/components/PhonebookManualEntry.vue:39
+#: resources/vue/components/PhonebookManualEntry.vue:51
 #: resources/vue/components/PhonebookManualEntry.vue:4
 msgid "Einrichtung:"
-msgstr "Institute:"
+msgstr "Institution:"
 
 #: resources/vue/components/Phonebook.vue:53
 msgid "Einrichtungsleitung"
-msgstr "Institute holder"
+msgstr "Institution holder:"
 
 #: resources/vue/components/Phonebook.vue:37
 msgid "Einrichtungsname"
-msgstr "Institute name"
+msgstr "Institution name"
+
+#: resources/vue/components/PhonebookManualEntry.vue:30
+msgid "Externe ID"
+msgstr "External ID"
+
+#: resources/vue/components/PhonebookManualEntry.vue:60
+msgid "Gebäude"
+msgstr "Building"
 
 #: resources/vue/components/PhonebookManualEntry.vue:4
 msgid "Grunddaten"
 msgstr "Basic data"
+
+#: resources/vue/components/PhonebookManualEntry.vue:24
+msgid "Info"
+msgstr "Info"
 
 #: resources/vue/components/Phonebook.vue:103
 msgid "Keine Einträge gefunden."
@@ -114,11 +126,11 @@ msgstr "No entries found."
 msgid "Name"
 msgstr "Name"
 
-#: resources/vue/components/PhonebookManualEntry.vue:29
+#: resources/vue/components/PhonebookManualEntry.vue:41
 msgid "Organisatorische Zuordnung dieser Telefonnummer:"
-msgstr "Organisational unit this phone number belongs to:"
+msgstr "Organizational unit:"
 
-#: resources/vue/components/PhonebookManualEntry.vue:38
+#: resources/vue/components/PhonebookManualEntry.vue:50
 #: resources/vue/components/PhonebookManualEntry.vue:3
 msgid "Person:"
 msgstr "Person:"
@@ -126,6 +138,7 @@ msgstr "Person:"
 #: resources/vue/components/Phonebook.vue:45
 #: resources/vue/components/PhonebookEntry.vue:29
 #: resources/vue/components/PhonebookEntry.vue:2
+#: resources/vue/components/PhonebookManualEntry.vue:66
 msgid "Raum"
 msgstr "Room"
 
@@ -135,7 +148,7 @@ msgstr "Search in..."
 
 #: resources/vue/components/Phonebook.vue:101
 msgid "Suchen Sie nach Durchwahl, Name oder Einrichtung"
-msgstr "Search for phone extension, name or institute"
+msgstr "Search for phone extension, name or institution"
 
 #: resources/vue/components/Phonebook.vue:21
 #: resources/vue/components/PhonebookManualEntry.vue:17
@@ -152,8 +165,8 @@ msgstr "Next >"
 
 #: resources/vue/components/PhonebookSearchResult.vue:6
 msgid "Zeige %{ lowerLimit } - %{ upperLimit }"
-msgstr "Show %{ lowerLimit } - %{ upperLimit }"
+msgstr "Showing %{ lowerLimit } - %{ upperLimit }"
 
-#: resources/vue/components/PhonebookManualEntry.vue:25
+#: resources/vue/components/PhonebookManualEntry.vue:37
 msgid "Zuordnung"
-msgstr "Assignment"
+msgstr "Assigned to"

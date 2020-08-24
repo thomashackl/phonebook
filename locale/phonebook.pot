@@ -10,7 +10,7 @@ msgstr ""
 "#-#-#-#-#  phonebook-php.pot (PACKAGE VERSION)  #-#-#-#-#\n"
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-24 08:12+0200\n"
+"POT-Creation-Date: 2020-08-24 13:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,12 +67,12 @@ msgid "bitte auswählen"
 msgstr ""
 
 #: views/phonebook_holder_groups/groups.php:17
-#: resources/vue/components/PhonebookManualEntry.vue:88
+#: resources/vue/components/PhonebookManualEntry.vue:116
 msgid "Speichern"
 msgstr ""
 
 #: views/phonebook_holder_groups/groups.php:19
-#: resources/vue/components/PhonebookManualEntry.vue:89
+#: resources/vue/components/PhonebookManualEntry.vue:117
 msgid "Abbrechen"
 msgstr ""
 
@@ -86,11 +86,11 @@ msgstr[1] ""
 msgid "< Zurück"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:87
+#: resources/vue/components/PhonebookManualEntry.vue:115
 msgid "Einrichtung oder Person suchen"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:39
+#: resources/vue/components/PhonebookManualEntry.vue:51
 #: resources/vue/components/PhonebookManualEntry.vue:4
 msgid "Einrichtung:"
 msgstr ""
@@ -103,8 +103,20 @@ msgstr ""
 msgid "Einrichtungsname"
 msgstr ""
 
+#: resources/vue/components/PhonebookManualEntry.vue:30
+msgid "Externe ID"
+msgstr ""
+
+#: resources/vue/components/PhonebookManualEntry.vue:60
+msgid "Gebäude"
+msgstr ""
+
 #: resources/vue/components/PhonebookManualEntry.vue:4
 msgid "Grunddaten"
+msgstr ""
+
+#: resources/vue/components/PhonebookManualEntry.vue:24
+msgid "Info"
 msgstr ""
 
 #: resources/vue/components/Phonebook.vue:103
@@ -115,11 +127,11 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:29
+#: resources/vue/components/PhonebookManualEntry.vue:41
 msgid "Organisatorische Zuordnung dieser Telefonnummer:"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:38
+#: resources/vue/components/PhonebookManualEntry.vue:50
 #: resources/vue/components/PhonebookManualEntry.vue:3
 msgid "Person:"
 msgstr ""
@@ -127,6 +139,7 @@ msgstr ""
 #: resources/vue/components/Phonebook.vue:45
 #: resources/vue/components/PhonebookEntry.vue:29
 #: resources/vue/components/PhonebookEntry.vue:2
+#: resources/vue/components/PhonebookManualEntry.vue:66
 msgid "Raum"
 msgstr ""
 
@@ -155,6 +168,6 @@ msgstr ""
 msgid "Zeige %{ lowerLimit } - %{ upperLimit }"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:25
+#: resources/vue/components/PhonebookManualEntry.vue:37
 msgid "Zuordnung"
 msgstr ""

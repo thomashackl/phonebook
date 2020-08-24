@@ -63,6 +63,7 @@
                 </section>
             </fieldset>
         </form>
+        <vue-simple-spinner v-if="searching" size="48"></vue-simple-spinner>
         <phonebook-search-result v-if="searchResult.length > 0" :entries="searchResult" :permission="permission"
                                  :total-entries="total" :offset="offset" :limit="limit"></phonebook-search-result>
         <studip-messagebox v-if="noResults" type="info"
@@ -73,6 +74,7 @@
 <script>
     import bus from 'jsassets/bus'
     import StudipIcon from './StudipIcon'
+    import VueSimpleSpinner from 'vue-simple-spinner'
     import PhonebookSearchResult from './PhonebookSearchResult'
     import StudipMessagebox from "./StudipMessagebox";
 
@@ -81,6 +83,7 @@
         components: {
             StudipMessagebox,
             StudipIcon,
+            VueSimpleSpinner,
             PhonebookSearchResult
         },
         props: {
@@ -161,7 +164,7 @@
                                 this.searchResult = json.collection
                                 this.total = json.pagination.total
                                 this.searching = false
-                                this.noResults = (json.length == 0)
+                                this.noResults = (json.pagination.total == 0)
                             })
                         }).catch((error) => {
                             let messagebox = document.createElement('div')

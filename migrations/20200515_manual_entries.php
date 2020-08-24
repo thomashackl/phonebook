@@ -33,11 +33,12 @@ class ManualEntries extends Migration {
             `name` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci,
             `range_id` VARCHAR(32) NULL COLLATE latin1_bin DEFAULT NULL,
             `phone` VARCHAR(255) NOT NULL COLLATE utf8mb4_unicode_ci,
-            `creator` VARCHAR(32) NOT NULL COLLATE latin1_bin REFERENCES `auth_user_md5`.`user_id`,
+            `creator` VARCHAR(32) NOT NULL COLLATE latin1_bin,
             `mkdate` DATETIME NOT NULL,
             `chdate` DATETIME NOT NULL,
             PRIMARY KEY (`entry_id`),
-            INDEX range_id (`range_id`)
+            INDEX range_id (`range_id`),
+            CONSTRAINT FOREIGN KEY (`creator`) REFERENCES `auth_user_md5`(`user_id`)
         ) ENGINE InnoDB ROW_FORMAT=DYNAMIC");
     }
 

@@ -81,7 +81,11 @@ class PhonebookManualController extends AuthenticatedController {
             'range_id' => $entry->range_id,
             'range_name' => $rangeName,
             'range_type' => strtolower(get_class($range)),
-            'phone' => $entry->phone
+            'phone' => $entry->phone,
+            'info' => $entry->info,
+            'building' => $entry->building,
+            'room' => $entry->room,
+            'external_id' => $entry->external_id
         ];
     }
 

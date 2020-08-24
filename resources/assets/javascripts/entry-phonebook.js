@@ -15,6 +15,8 @@ Vue.use(GetTextPlugin, {
 
 window.Vue = Vue
 
+Vue.config.language = String.locale
+
 /**
  * The following block of code is used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

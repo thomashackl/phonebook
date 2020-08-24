@@ -17,6 +17,10 @@
  * @property string name database column
  * @property string range_id database column
  * @property string phone database column
+ * @property string info database column
+ * @property string building database column
+ * @property string room database column
+ * @property string external_id database column
  * @property string creator database column
  * @property string mkdate database column
  * @property string chdate database column
