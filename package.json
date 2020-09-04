@@ -1,13 +1,13 @@
 {
     "name": "@studip/phonebook",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "description": "A digital phonebook for Stud.IP with REST API",
     "license": "GPL-2.0-or-later",
     "private": true,
     "scripts": {
         "extract-gettext-vue": "node_modules/.bin/gettext-extract --removeHTMLWhitespaces --attribute v-translate --output locale/phonebook-vue.pot $(find resources/vue/components -type f -name '*.vue')",
         "extract-gettext-php": "> locale/phonebook-php.pot && find . -iname '*.php' | xargs xgettext --from-code=UTF-8 -j -n --language=PHP -o locale/phonebook-php.pot",
-        "extract-gettext": "npm run extract-gettext-vue && npm run extract-gettext-php && msgcat locale/phonebook-*.pot > locale/phonebook.pot && rm locale/phonebook-*.pot",
+        "extract-gettext": "npm run extract-gettext-vue && npm run extract-gettext-php && msgcat locale/phonebook-*.pot > locale/phonebook.pot && rm locale/phonebook-*.pot && msgmerge --update locale/en/LC_MESSAGES/phonebook.po locale/phonebook.pot",
         "compile-gettext": "msgfmt locale/en/LC_MESSAGES/phonebook.po --output-file locale/en/LC_MESSAGES/phonebook.mo && node_modules/.bin/gettext-compile --output locale/en/LC_MESSAGES/phonebook.json locale/en/LC_MESSAGES/phonebook.po",
         "wds": "webpack-dev-server --progress --config webpack.dev-server.js",
         "webpack-dev": "webpack --config webpack.dev.js --mode development",

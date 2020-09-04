@@ -2,7 +2,8 @@
 
 namespace RESTAPI\Routes;
 
-use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, \DatafieldEntryModel;
+use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, \DatafieldEntryModel,
+    \DateTimeZone, \DateTime;
 
 /**
  * PhonebookRoutes - REST routes for phone book.
@@ -44,7 +45,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $parameters =                 [
                 'search' => '%' . urldecode($searchterm) . '%',
                 'visibility' => words('yes always'),
-                'datafield' => Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID
+                'datafield' => Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID,
+                'time' => date('Y-m-d H:i:s')
             ];
 
             if (in_array('institute_holder', $in)) {
@@ -187,6 +189,17 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $entry->room = trim($this->data['room']);
         }
 
+        $tz = new DateTimeZone('Europe/Berlin');
+        if ($this->data['valid_from']) {
+            $ts = new DateTime(trim($this->data['valid_from']), $tz);
+            $entry->valid_from = $ts->format('Y-m-d H:i:s');
+        }
+
+        if ($this->data['valid_until']) {
+            $ts = new DateTime(trim($this->data['valid_until']), $tz);
+            $entry->valid_until = $ts->format('Y-m-d H:i:s');
+        }
+
         $entry->creator = User::findCurrent()->id;
 
         $entry->mkdate = date('Y-m-d H:i:s');
@@ -195,7 +208,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         if ($entry->store()) {
 
             $this->status(201);
-            $this->headers(['Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id)]);
+            $this->headers([
+                'Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id),
+                'Content-Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id)
+            ]);
             return $entry->toArray();
 
         } else {
@@ -252,12 +268,34 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 $entry->room = trim($this->data['room']) ?: null;
             }
 
+            $tz = new DateTimeZone('Europe/Berlin');
+            if (isset($this->data['valid_from'])) {
+                if (trim($this->data['valid_from'])) {
+                    $ts = new DateTime(trim($this->data['valid_from']), $tz);
+                    $entry->valid_from = $ts->format('Y-m-d H:i:s');
+                } else {
+                    $entry->valid_from = null;
+                }
+            }
+
+            if (isset($this->data['valid_until'])) {
+                if (trim($this->data['valid_until'])) {
+                    $ts = new DateTime(trim($this->data['valid_until']), $tz);
+                    $entry->valid_until = $ts->format('Y-m-d H:i:s');
+                } else {
+                    $entry->valid_until = null;
+                }
+            }
+
             $entry->chdate = date('Y-m-d H:i:s');
 
             if ($entry->store() !== false) {
 
                 $this->status(204);
-                $this->headers(['Content-Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id)]);
+                $this->headers([
+                    'Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id),
+                    'Content-Location' => URLHelper::getLink('api.php/phonebook/entry/' . $entry->id)
+                ]);
 
             } else {
 
@@ -475,7 +513,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 ui.`Fax` AS fax,
                 '' AS building,
                 ui.`raum` AS room,
-                IFNULL(e.`content`, '') AS info
+                IFNULL(e.`content`, '') AS info,
+                '' AS valid_from,
+                '' AS valid_until
             FROM `auth_user_md5` a ";
 
         $joins = [
@@ -545,7 +585,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 i.`fax` AS fax,
                 '' AS building,
                 '' AS room,
-                '' AS info
+                '' AS info,
+                '' AS valid_from,
+                '' AS valid_until
             FROM `Institute` i ";
 
         $where = [];
@@ -597,7 +639,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 '' AS fax,
                 p.`building`,
                 p.`room`,
-                p.`info`
+                p.`info`,
+                p.`valid_from`,
+                p.`valid_until`
             FROM `phonebook` p ";
 
         $joins = [
@@ -629,7 +673,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $where[] = "p.`range_id` IN (" . $this->getHolderSQL() . ")";
         }
 
-        return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")";
+        return $query . implode(' ', $joins) . " WHERE (p.`valid_from` IS NULL AND p.`valid_until` IS NULL)
+                OR (p.`valid_from` IS NULL AND p.`valid_until` >= :time)
+                OR (p.`valid_until` IS NULL AND p.`valid_from` <= :time)
+                OR (:time BETWEEN p.`valid_from` AND p.`valid_until`) AND (" . implode(' OR ', $where) . ")";
     }
 
     private function getHolderSQL()

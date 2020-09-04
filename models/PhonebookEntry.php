@@ -22,6 +22,8 @@
  * @property string room database column
  * @property string external_id database column
  * @property string creator database column
+ * @property string valid_from database column
+ * @property string valid_until database column
  * @property string mkdate database column
  * @property string chdate database column
  */

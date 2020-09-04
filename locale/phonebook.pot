@@ -10,7 +10,7 @@ msgstr ""
 "#-#-#-#-#  phonebook-php.pot (PACKAGE VERSION)  #-#-#-#-#\n"
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-24 13:00+0200\n"
+"POT-Creation-Date: 2020-09-04 13:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,12 +67,12 @@ msgid "bitte auswählen"
 msgstr ""
 
 #: views/phonebook_holder_groups/groups.php:17
-#: resources/vue/components/PhonebookManualEntry.vue:116
+#: resources/vue/components/PhonebookManualEntry.vue:135
 msgid "Speichern"
 msgstr ""
 
 #: views/phonebook_holder_groups/groups.php:19
-#: resources/vue/components/PhonebookManualEntry.vue:117
+#: resources/vue/components/PhonebookManualEntry.vue:136
 msgid "Abbrechen"
 msgstr ""
 
@@ -86,7 +86,7 @@ msgstr[1] ""
 msgid "< Zurück"
 msgstr ""
 
-#: resources/vue/components/PhonebookManualEntry.vue:115
+#: resources/vue/components/PhonebookManualEntry.vue:134
 msgid "Einrichtung oder Person suchen"
 msgstr ""
 
@@ -115,11 +115,23 @@ msgstr ""
 msgid "Grunddaten"
 msgstr ""
 
+#: resources/vue/components/PhonebookManualEntry.vue:77
+msgid "Gültig ab:"
+msgstr ""
+
+#: resources/vue/components/PhonebookManualEntry.vue:83
+msgid "Gültig bis:"
+msgstr ""
+
+#: resources/vue/components/PhonebookManualEntry.vue:73
+msgid "Gültigkeitszeitraum"
+msgstr ""
+
 #: resources/vue/components/PhonebookManualEntry.vue:24
 msgid "Info"
 msgstr ""
 
-#: resources/vue/components/Phonebook.vue:103
+#: resources/vue/components/Phonebook.vue:106
 msgid "Keine Einträge gefunden."
 msgstr ""
 
@@ -147,7 +159,7 @@ msgstr ""
 msgid "Suchen in..."
 msgstr ""
 
-#: resources/vue/components/Phonebook.vue:101
+#: resources/vue/components/Phonebook.vue:104
 msgid "Suchen Sie nach Durchwahl, Name oder Einrichtung"
 msgstr ""
 

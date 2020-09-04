@@ -75,17 +75,33 @@ class PhonebookManualController extends AuthenticatedController {
             }
         }
 
+        $tz = new DateTimeZone('Europe/Berlin');
+        if ($entry->valid_from) {
+            $from = new DateTime($entry->valid_from, $tz);
+            $from = $from->format('d.m.Y H:i');
+        } else {
+            $from = '';
+        }
+        if ($entry->valid_until) {
+            $until = new DateTime($entry->valid_until, $tz);
+            $until = $until->format('d.m.Y H:i');
+        } else {
+            $until = '';
+        }
+
         $this->entry = [
             'id' => $entry->id,
             'name' => $entry->name,
             'range_id' => $entry->range_id,
             'range_name' => $rangeName,
-            'range_type' => strtolower(get_class($range)),
+            'range_type' => $range ? strtolower(get_class($range)) : '',
             'phone' => $entry->phone,
             'info' => $entry->info,
             'building' => $entry->building,
             'room' => $entry->room,
-            'external_id' => $entry->external_id
+            'external_id' => $entry->external_id,
+            'valid_from' => $from,
+            'valid_until' => $until
         ];
     }
 

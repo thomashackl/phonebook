@@ -71,6 +71,23 @@
                 <input id="entry-room" type="text" size="75" maxlength="255" v-model="room">
             </section>
         </fieldset>
+        <fieldset>
+            <legend>
+                <translate>Gültigkeitszeitraum</translate>
+            </legend>
+            <section class="col-2">
+                <label for="entry-valid-from">
+                    <translate>Gültig ab:</translate>
+                </label>
+                <input id="entry-valid-from" type="text" size="75" v-model="validFrom" data-datetime-picker>
+            </section>
+            <section class="col-2">
+                <label for="entry-valid-until">
+                    <translate>Gültig bis:</translate>
+                </label>
+                <input id="entry-valid-until" type="text" size="75" v-model="validUntil" data-datetime-picker>
+            </section>
+        </fieldset>
         <footer data-dialog-button>
             <studip-button class="accept" name="add" :label="acceptText"></studip-button>
             <studip-button class="cancel" name="cancel" :label="cancelText" data-dialog-close></studip-button>
@@ -110,6 +127,8 @@
                 room: this.entry.room,
                 range: this.entry.range_id,
                 externalId: this.entry.external_id,
+                validFrom: this.entry.valid_from,
+                validUntil: this.entry.valid_until,
                 ranges: [],
                 searchterm: '',
                 placeholderText: this.$gettext('Einrichtung oder Person suchen'),
@@ -189,6 +208,16 @@
                 }
                 if (this.range != this.entry.range_id) {
                     formData.append('range', this.range)
+                }
+
+                const from = document.getElementById('entry-valid-from').value
+                if (from != this.entry.valid_from) {
+                    formData.append('valid_from', from)
+                }
+
+                const until = document.getElementById('entry-valid-until').value
+                if (until != this.entry.valid_until) {
+                    formData.append('valid_until', until)
                 }
 
                 fetch(url, {
