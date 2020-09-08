@@ -39,6 +39,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $this->limit = $limit;
 
             $query = $this->getUserSQL($in) .
+                " UNION " . $this->getPersonalPhoneSQL($in) .
                 " UNION " . $this->getPhonebookSQL($in) .
                 " ORDER BY lastname, firstname, username, institute, statusgroup, phone";
 
@@ -46,6 +47,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 'search' => '%' . urldecode($searchterm) . '%',
                 'visibility' => words('yes always'),
                 'datafield' => Config::get()->PHONEBOOK_EXTRA_INFO_DATAFIELD_ID,
+                'personalphone' => Config::get()->PHONEBOOK_PERSONAL_PHONE_DATAFIELD_ID,
                 'time' => date('Y-m-d H:i:s')
             ];
 
@@ -437,6 +439,80 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     }
 
     /**
+     * Set personal phone number for given user at given institute.
+     *
+     * @put /phonebook/personalphone/:username
+     */
+    public function setPersonalPhoneNumber($username)
+    {
+        if ($user = User::findOneByUsername($username)) {
+
+            $entry = DatafieldEntryModel::find([
+                Config::get()->PHONEBOOK_PERSONAL_PHONE_DATAFIELD_ID,
+                $user->id,
+                '',
+                ''
+            ]);
+
+            if (!$entry) {
+                $entry = new DatafieldEntryModel();
+                $entry->datafield_id = Config::get()->PHONEBOOK_PERSONAL_PHONE_DATAFIELD_ID;
+                $entry->range_id = $user->id;
+                $entry->lang = '';
+            }
+
+            $entry->content = $this->data['number'];
+
+            if ($entry->store() !== false) {
+                $this->status(200);
+                return $entry->toArray();
+            } else {
+                $this->error(500, 'Could not store personal phone number.');
+            }
+
+        } else {
+
+            $this->error(404, 'Given username not found.');
+
+        }
+    }
+
+    /**
+     * Delete personal phone number for given user.
+     *
+     * @delete /phonebook/personalphone/:username
+     */
+    public function deletePersonalPhoneNumber($username)
+    {
+        if ($user = User::findOneByUsername($username)) {
+
+            $entry = DatafieldEntryModel::find([
+                Config::get()->PHONEBOOK_EXTRA_PERSONAL_PHONE_ID,
+                $user->id,
+                '',
+                ''
+            ]);
+
+            if (!$entry) {
+                $this->error(404, 'No content found, none deleted.');
+            } else {
+
+                if ($entry->delete() !== false) {
+                    $this->status(204);
+                } else {
+                    $this->error(500, 'Could not delete extra user info.');
+                }
+
+            }
+
+        } else {
+
+            $this->error(404, 'Given username not found.');
+
+        }
+    }
+
+    /**
      * Finds ranges (institutes and users) matching the given searchterm.
      *
      * @get /phonebook/ranges/:searchterm
@@ -558,6 +634,79 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
         return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")
                 AND a.`visible` IN (:visibility) AND ui.`Telefon` != ''";
+    }
+
+    /**
+     * Generates SQL for getting user data.
+     *
+     * @param array $in fields to search in
+     * @return string SQL
+     */
+    private function getPersonalPhoneSQL($in)
+    {
+        $query = "SELECT DISTINCT
+                a.`user_id` AS id,
+                'user' AS type,
+                a.`Vorname` AS firstname,
+                a.`Nachname` AS lastname,
+                info.`title_front`,
+                info.`title_rear`,
+                a.`username`,
+                'Persönliche Telefonnummer' AS institute,
+                info.`geschlecht` AS gender,
+                '' AS statusgroup,
+                '' AS statusgroup_male,
+                '' AS statusgroup_female,
+                p.`content` AS phone,
+                '' AS fax,
+                '' AS building,
+                '' AS room,
+                IFNULL(e.`content`, '') AS info,
+                '' AS valid_from,
+                '' AS valid_until
+            FROM `auth_user_md5` a ";
+
+        $joins = [
+            "JOIN `user_info` info ON (info.`user_id` = a.`user_id`)",
+            "JOIN `user_inst` ui ON (ui.`user_id` = a.`user_id`)",
+            "JOIN `Institute` inst ON (inst.`Institut_id` = ui.`institut_id`)",
+            "JOIN `statusgruppe_user` us ON (us.`user_id` = a.`user_id`)",
+            "JOIN `statusgruppen` s ON (
+                    s.`statusgruppe_id` = us.`statusgruppe_id`
+                    AND s.`range_id` = inst.`Institut_id`
+                )",
+            "JOIN `datafields_entries` p ON (p.`range_id` = a.`user_id` AND p.`datafield_id` = :personalphone)",
+            "LEFT JOIN `datafields_entries` e ON (e.`range_id` = a.`user_id` AND e.`sec_range_id` = inst.`Institut_id` AND e.`datafield_id` = :datafield)"
+        ];
+
+        $where = [];
+        if (in_array('phone_number', $in)) {
+            $where[] = "ui.`Telefon` LIKE :search";
+            $where[] = "ui.`Fax` LIKE :search";
+        }
+
+        if (in_array('person_name', $in)) {
+            $where[] = "a.`Vorname` LIKE :search";
+            $where[] = "a.`Nachname` LIKE :search";
+            $where[] = "CONCAT_WS(' ', a.`Vorname`, a.`Nachname`) LIKE :search";
+            $where[] = "CONCAT_WS(' ', a.`Nachname`, a.`Vorname`) LIKE :search";
+            $where[] = "a.`username` LIKE :search";
+        }
+
+        if (in_array('institute_name', $in)) {
+            $where[] = "inst.`Name` LIKE :search";
+        }
+
+        if (in_array('room', $in)) {
+            $where[] = "ui.`raum` LIKE :search";
+        }
+
+        if (in_array('institute_holder', $in)) {
+            $where[] = "inst.`Institut_id` IN (" . $this->getHolderSQL() . ")";
+        }
+
+        return $query . implode(' ', $joins) . " WHERE (" . implode(' OR ', $where) . ")
+                AND a.`visible` IN (:visibility) AND p.`content` IS NOT NULL AND p.`content` != ''";
     }
 
     /**
