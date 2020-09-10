@@ -22,6 +22,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      * You can specify the fields to search in via the query parameter "in",
      * offset and limit can be given accordingly via request.
      *
+     * "in" contains a comma-separated list of "person_name", "phone_number",
+     * "institute_name", "room", "institute_holder" and must not be empty.
+     *
      * @get /phonebook/search/:searchterm
      */
     public function search($searchterm)
@@ -153,6 +156,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      * phonebook by default, so this method can be used to add manual entries
      * which do not correspond to a real user.
      *
+     * "name" and "phone" must be set, "range_id", "info", "external_id",
+     * "building", "room", "valid_from", "valid_until" are all optional.
+     *
      * @put /phonebook/entry
      */
     public function addEntry()
@@ -171,24 +177,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         $entry->name = trim($this->data['name']);
         $entry->phone = trim($this->data['phone']);
 
-        if ($this->data['range_id']) {
-            $entry->range_id = $this->data['range_id'];
-        }
-
-        if ($this->data['info']) {
-            $entry->info = trim($this->data['info']);
-        }
-
-        if ($this->data['external_id']) {
-            $entry->external_id = trim($this->data['external_id']);
-        }
-
-        if ($this->data['building']) {
-            $entry->building = trim($this->data['building']);
-        }
-
-        if ($this->data['room']) {
-            $entry->room = trim($this->data['room']);
+        foreach (words('range_id info external_id building room') as $set) {
+            if ($this->data[$set]) {
+                $entry->$set = $this->data[$set];
+            }
         }
 
         $tz = new DateTimeZone('Europe/Berlin');
@@ -226,6 +218,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     /**
      * Updates the entry with the given ID.
      *
+     * "name" and "phone" must be set, "range", "info", "external_id",
+     * "building", "room", "valid_from", "valid_until" are all optional.
+     *
      * @patch /phonebook/entry/:id
      */
     public function updateEntry($id)
@@ -250,24 +245,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 }
             }
 
-            if (isset($this->data['info']) && $this->data['info'] !== '') {
-                $entry->info = trim($this->data['info']) ?: null;
-            }
-
-            if (isset($this->data['external_ id']) && $this->data['external_id'] !== '') {
-                $entry->external_id = trim($this->data['external_id']) ?: null;
-            }
-
-            if (isset($this->data['range'])) {
-                $entry->range_id = trim($this->data['range']) ?: null;
-            }
-
-            if (isset($this->data['building']) && $this->data['building'] !== '') {
-                $entry->building = trim($this->data['building']) ?: null;
-            }
-
-            if (isset($this->data['room']) && $this->data['room'] !== '') {
-                $entry->room = trim($this->data['room']) ?: null;
+            foreach (words('range info external_id building room') as $set) {
+                if (isset($this->data[$set]) && $this->data[$set] !== '') {
+                    $entry->$set = trim($this->data[$set]);
+                }
             }
 
             $tz = new DateTimeZone('Europe/Berlin');
@@ -316,6 +297,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     /**
      * Updates the entry with the given external ID.
      *
+     * @see updateEntry
+     *
      * @patch /phonebook/entry/external/:id
      */
     public function updateEntryByExternalId($id)
@@ -349,6 +332,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     /**
      * Deletes the given entry from phonebook.
      *
+     * @see deleteEntry
+     *
      * @delete /phonebook/entry/external/:id
      */
     public function deleteEntryByExternalId($id)
@@ -359,6 +344,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
     /**
      * Set userinfo for given user at given institute.
+     *
+     * Content is given via the request parameter "info".
      *
      * @put /phonebook/userinfo/:username/:institute
      */
@@ -440,6 +427,8 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
     /**
      * Set personal phone number for given user at given institute.
+     *
+     * Content is given via the request parameter "number".
      *
      * @put /phonebook/personalphone/:username
      */
