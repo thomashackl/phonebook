@@ -163,10 +163,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function addEntry()
     {
-        //if (!$GLOBALS['perm']->have_perm('root') &&
-        //        !$GLOBALS['user']->getAuthenticatedUser()->hasRole('Telefonbuch-Admin')) {
+        /*if (!$GLOBALS['perm']->have_perm('root') &&
+                !$GLOBALS['user']->getAuthenticatedUser()->hasRole('Telefonbuch-Admin')) {
             $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
-        //}
+        }*/
 
         $entry = new PhonebookEntry();
 
