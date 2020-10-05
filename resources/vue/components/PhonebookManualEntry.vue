@@ -207,7 +207,7 @@
                     formData.append('room', this.room)
                 }
                 if (this.range != this.entry.range_id) {
-                    formData.append('range', this.range)
+                    formData.append('range_id', this.range)
                 }
 
                 const from = document.getElementById('entry-valid-from').value

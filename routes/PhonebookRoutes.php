@@ -14,6 +14,8 @@ use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, 
 
 class PhonebookRoutes extends \RESTAPI\RouteMap {
 
+    const PHONE_PREFIX = "+49(0)851/509-";
+
     /**
      * Searches for phonebook entries matching the given searchterm.
      * Searchterm can be part of a phone number, a person name or an
@@ -175,7 +177,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         }
 
         $entry->name = trim($this->data['name']);
-        $entry->phone = trim($this->data['phone']);
+        $entry->phone = self::PHONE_PREFIX . trim($this->data['phone']);
 
         foreach (words('range_id info external_id building room') as $set) {
             if ($this->data[$set]) {
@@ -218,7 +220,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
     /**
      * Updates the entry with the given ID.
      *
-     * "name" and "phone" must be set, "range", "info", "external_id",
+     * "name" and "phone" must be set, "range_id", "info", "external_id",
      * "building", "room", "valid_from", "valid_until" are all optional.
      *
      * @patch /phonebook/entry/:id
@@ -245,7 +247,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                 }
             }
 
-            foreach (words('range info external_id building room') as $set) {
+            foreach (words('range_id info external_id building room') as $set) {
                 if (isset($this->data[$set]) && $this->data[$set] !== '') {
                     $entry->$set = trim($this->data[$set]);
                 }
