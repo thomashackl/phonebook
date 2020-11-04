@@ -14,8 +14,6 @@ use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, 
 
 class PhonebookRoutes extends \RESTAPI\RouteMap {
 
-    const PHONE_PREFIX = "+49(0)851/509-";
-
     /**
      * Searches for phonebook entries matching the given searchterm.
      * Searchterm can be part of a phone number, a person name or an
@@ -177,7 +175,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         }
 
         $entry->name = trim($this->data['name']);
-        $entry->phone = self::PHONE_PREFIX . trim($this->data['phone']);
+        $entry->phone = PhonebookEntry::PHONE_PREFIX . trim($this->data['phone']);
 
         foreach (words('range_id info external_id building room') as $set) {
             if ($this->data[$set]) {
@@ -223,7 +221,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      * "name" and "phone" must be set, "range_id", "info", "external_id",
      * "building", "room", "valid_from", "valid_until" are all optional.
      *
-     * @patch /phonebook/entry/:id
+     * @post /phonebook/entry/:id
      */
     public function updateEntry($id)
     {
@@ -241,7 +239,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             if (isset($this->data['phone']) && $this->data['phone'] !== '') {
                 if (trim($this->data['phone']) != '') {
-                    $entry->phone = trim($this->data['phone']);
+                    $entry->phone = PhonebookEntry::PHONE_PREFIX . trim($this->data['phone']);
                 } else {
                     $this->error(422, 'A phone number for the entry is required.');
                 }
@@ -301,7 +299,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      *
      * @see updateEntry
      *
-     * @patch /phonebook/entry/external/:id
+     * @post /phonebook/entry/external/:id
      */
     public function updateEntryByExternalId($id)
     {

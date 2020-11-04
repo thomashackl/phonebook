@@ -64,6 +64,8 @@ class PhonebookManualController extends AuthenticatedController {
             $entry = new PhonebookEntry();
         }
 
+        $this->prefix = PhonebookEntry::PHONE_PREFIX;
+
         // Check which type of object the range_id points to.
         if ($entry->range_id) {
             $range = User::find($entry->range_id);
@@ -95,7 +97,7 @@ class PhonebookManualController extends AuthenticatedController {
             'range_id' => $entry->range_id,
             'range_name' => $rangeName,
             'range_type' => $range ? strtolower(get_class($range)) : '',
-            'phone' => $entry->phone,
+            'phone' => str_replace($this->prefix, '', $entry->phone),
             'info' => $entry->info,
             'building' => $entry->building,
             'room' => $entry->room,

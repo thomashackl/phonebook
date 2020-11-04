@@ -31,6 +31,8 @@
 class PhonebookEntry extends SimpleORMap
 {
 
+    public const PHONE_PREFIX = "+49(0)851/509-";
+
     protected static function configure($config = [])
     {
         $config['db_table'] = 'phonebook';

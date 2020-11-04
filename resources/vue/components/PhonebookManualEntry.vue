@@ -18,6 +18,7 @@
                         <translate>Telefonnummer</translate>
                     </span>
                 </label>
+                {{ prefix }}
                 <input id="entry-phone" type="text" size="75" maxlength="255" v-model="phone">
             </section>
             <section>
@@ -113,6 +114,10 @@
             institutes: {
                 type: Array
             },
+            prefix: {
+                type: String,
+                default: ''
+            },
             entry: {
                 type: Object,
                 required: true
@@ -185,7 +190,7 @@
                 let method = 'PUT'
                 if (this.entry.id) {
                     url = STUDIP.URLHelper.getURL('api.php/phonebook/entry/' + this.entry.id)
-                    method = 'PATCH'
+                    method = 'POST'
                 }
 
                 if (this.name != this.entry.name) {
