@@ -163,10 +163,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function addEntry()
     {
-        /*if (!$GLOBALS['perm']->have_perm('root') &&
-                !$GLOBALS['user']->getAuthenticatedUser()->hasRole('Telefonbuch-Admin')) {
+        if (!$this->checkPermission()) {
             $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
-        }*/
+        }
 
         $entry = new PhonebookEntry();
 
@@ -225,6 +224,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function updateEntry($id)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         $entry = PhonebookEntry::find($id);
 
         if ($entry) {
@@ -314,6 +317,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function deleteEntry($id)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         if ($entry = PhonebookEntry::find($id)) {
 
             if ($entry->delete() !== false) {
@@ -338,6 +345,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function deleteEntryByExternalId($id)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         $entry = PhonebookEntry::findOneByExternal_id($id);
         return $this->deleteEntry($entry->id);
     }
@@ -351,6 +362,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function setExtraInfo($username, $institute)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         if ($user = User::findOneByUsername($username)) {
 
             if (InstituteMember::exists($user->id, $institute)) {
@@ -397,6 +412,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function deleteExtraInfo($username, $institute)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         if ($user = User::findOneByUsername($username)) {
 
             $entry = DatafieldEntryModel::find([
@@ -434,6 +453,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function setPersonalPhoneNumber($username)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         if ($user = User::findOneByUsername($username)) {
 
             $entry = DatafieldEntryModel::find([
@@ -473,6 +496,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
      */
     public function deletePersonalPhoneNumber($username)
     {
+        if (!$this->checkPermission()) {
+            $this->error(403, 'You must be root or a phonebook admin in order to create new entries.');
+        }
+
         if ($user = User::findOneByUsername($username)) {
 
             $entry = DatafieldEntryModel::find([
@@ -811,10 +838,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $where[] = "p.`range_id` IN (" . $this->getHolderSQL() . ")";
         }
 
-        return $query . implode(' ', $joins) . " WHERE (p.`valid_from` IS NULL AND p.`valid_until` IS NULL)
+        return $query . implode(' ', $joins) . " WHERE ((p.`valid_from` IS NULL AND p.`valid_until` IS NULL)
                 OR (p.`valid_from` IS NULL AND p.`valid_until` >= :time)
                 OR (p.`valid_until` IS NULL AND p.`valid_from` <= :time)
-                OR (:time BETWEEN p.`valid_from` AND p.`valid_until`) AND (" . implode(' OR ', $where) . ")";
+                OR (:time BETWEEN p.`valid_from` AND p.`valid_until`)) AND (" . implode(' OR ', $where) . ")";
     }
 
     private function getHolderSQL()
@@ -834,6 +861,17 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                     OR CONCAT_WS(' ', a.`Nachname`, a.`Vorname`) LIKE :search
                     OR a.`username` LIKE :search
                 )";
+    }
+
+    /**
+     * Checks if the current user is root or has the global role for phonebook admins.
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        return $GLOBALS['perm']->have_perm('root') ||
+            $GLOBALS['user']->getAuthenticatedUser()->hasRole('Telefonbuch-Admin');
     }
 
 }

@@ -41,7 +41,8 @@ class PhonebookSearchController extends AuthenticatedController {
 
         Navigation::activateItem('/search/phonebook/search');
 
-        $this->permission = $GLOBALS['perm']->get_perm();
+        $this->permission = ($GLOBALS['perm']->have_perm('root') ||
+            $GLOBALS['user']->getAuthenticatedUser()->hasRole('Telefonbuch-Admin')) ? 'true' : 'false';
 
         if ($GLOBALS['perm']->have_perm('root')) {
             $sidebar = Sidebar::get();

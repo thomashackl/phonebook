@@ -11,7 +11,7 @@
                   :page-count="totalPages" :click-handler="changePage"
                   container-class="phonebook-paginate" page-class="phonebook-page"></paginate>
         <phonebook-entry v-for="(entry, index) in entries" :key="index" :entry="entry"
-                         :edit-permission="mayEdit"></phonebook-entry>
+                         :edit-permission="permission"></phonebook-entry>
     </article>
 </template>
 
@@ -44,16 +44,15 @@
                 default: 100
             },
             permission: {
-                type: String,
-                default: 'autor'
+                type: Boolean,
+                default: false
             }
         },
         data() {
             return {
                 loading: false,
                 prevText: this.$gettext('< Zurück'),
-                nextText: this.$gettext('Weiter >'),
-                mayEdit: this.permission == 'root'
+                nextText: this.$gettext('Weiter >')
             }
         },
         computed: {

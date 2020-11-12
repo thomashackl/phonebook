@@ -88,8 +88,8 @@
         },
         props: {
             permission: {
-                type: String,
-                default: 'autor'
+                type: Boolean,
+                default: false
             }
         },
         data() {

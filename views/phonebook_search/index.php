@@ -1,5 +1,5 @@
 <div id="phonebook">
-    <phonebook permission="<?php echo $permission ?>"></phonebook>
+    <phonebook :permission="<?php echo $permission ?>"></phonebook>
 </div>
 
 <script>
