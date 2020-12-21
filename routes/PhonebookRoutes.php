@@ -174,7 +174,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
         }
 
         $entry->name = trim($this->data['name']);
-        $entry->phone = PhonebookEntry::PHONE_PREFIX . trim($this->data['phone']);
+        $entry->phone = Config::get()->PHONEBOOK_PHONENUMBER_PREFIX . trim($this->data['phone']);
 
         foreach (words('range_id info external_id building room') as $set) {
             if ($this->data[$set]) {
@@ -242,7 +242,7 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             if (isset($this->data['phone']) && $this->data['phone'] !== '') {
                 if (trim($this->data['phone']) != '') {
-                    $entry->phone = PhonebookEntry::PHONE_PREFIX . trim($this->data['phone']);
+                    $entry->phone = Config::get()->PHONEBOOK_PHONENUMBER_PREFIX . trim($this->data['phone']);
                 } else {
                     $this->error(422, 'A phone number for the entry is required.');
                 }

@@ -64,7 +64,7 @@ class PhonebookManualController extends AuthenticatedController {
             $entry = new PhonebookEntry();
         }
 
-        $this->prefix = PhonebookEntry::PHONE_PREFIX;
+        $this->prefix = Config::get()->PHONEBOOK_PHONENUMBER_PREFIX;
 
         // Check which type of object the range_id points to.
         if ($entry->range_id) {
