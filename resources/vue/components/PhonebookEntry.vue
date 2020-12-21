@@ -25,8 +25,7 @@
             <div class="phonebook-institute">
                 {{ entry.institute }}
                 <br>
-                {{ statusgroupGendered }}
-                <template v-if="entry.room != ''">
+                {{ statusgroupGendered }}<template v-if="entry.room != ''">
                     <template v-if="statusgroupGendered != ''">,</template>
                     <translate>Raum</translate> {{ entry.room }}
                 </template>
