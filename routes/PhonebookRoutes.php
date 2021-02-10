@@ -2,6 +2,8 @@
 
 namespace RESTAPI\Routes;
 
+require_once(__DIR__ . '/../vendor/autoload.php');
+
 use \Request, \DBManager, \Config, \Avatar, \URLHelper, \PhonebookEntry, \User, \DatafieldEntryModel,
     \DateTimeZone, \DateTime;
 
@@ -61,7 +63,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
 
             $entries = DBManager::get()->fetchAll($query, $parameters);
 
-            array_walk($entries, function (&$entry, $index) {
+            $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+
+            array_walk($entries, function (&$entry, $index) use ($phoneUtil) {
                 if (in_array($entry['type'], ['user', 'institute'])) {
                     $avatar = Avatar::getAvatar($entry['id']);
 
@@ -84,6 +88,9 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
                         $entry['link'] = '';
                         break;
                 }
+
+                $raw = $phoneUtil->parse($entry['phone'], null);
+                $entry['phoneraw'] = $phoneUtil->format($raw, \libphonenumber\PhoneNumberFormat::E164);
             });
 
             $this->etag(md5(serialize($entries)));

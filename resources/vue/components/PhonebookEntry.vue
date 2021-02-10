@@ -32,14 +32,9 @@
             </div>
         </div>
         <div class="phonebook-phone">
-            <template v-if="dialable != null">
-                <a :href="'tel:' + dialable">
-                    {{ entry.phone }}
-                </a>
-            </template>
-            <template v-else>
+            <a :href="'tel:' + entry.phoneraw">
                 {{ entry.phone }}
-            </template>
+            </a>
             <div v-if="entry.fax != ''" class="phonebook-fax">
                 Fax: {{ entry.fax }}
             </div>
@@ -49,7 +44,6 @@
 
 <script>
     import StudipIcon from './StudipIcon'
-    import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
 
     export default {
         name: 'PhonebookEntry',
@@ -88,14 +82,6 @@
                         return this.entry.statusgroup_female ? this.entry.statusgroup_female : this.entry.statusgroup
                     default:
                         return this.entry.statusgroup
-                }
-            },
-            dialable: function() {
-                const phoneNumber = parsePhoneNumberFromString(this.entry.phone)
-                if (phoneNumber) {
-                    return phoneNumber.number
-                } else {
-                    return null
                 }
             }
         },
