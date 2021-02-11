@@ -822,14 +822,13 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             "LEFT JOIN `user_info` u ON (u.`user_id` = a.`user_id`)"
         ];
 
-        $where = [
-            "p.`name` LIKE :search"
-        ];
+        $where = [];
         if (in_array('phone_number', $in)) {
             $where[] = "p.`phone` LIKE :search";
         }
 
         if (in_array('person_name', $in)) {
+            $where[] = "p.`name` LIKE :search";
             $where[] = "a.`Vorname` LIKE :search";
             $where[] = "a.`Nachname` LIKE :search";
             $where[] = "CONCAT_WS(' ', a.`Vorname`, a.`Nachname`) LIKE :search";
