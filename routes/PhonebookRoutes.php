@@ -848,6 +848,10 @@ class PhonebookRoutes extends \RESTAPI\RouteMap {
             $where[] = "p.`range_id` IN (" . $this->getHolderSQL() . ")";
         }
 
+        if (in_array('room', $in)) {
+            $where[] = "p.`room` LIKE :search";
+        }
+
         return $query . implode(' ', $joins) . " WHERE ((p.`valid_from` IS NULL AND p.`valid_until` IS NULL)
                 OR (p.`valid_from` IS NULL AND p.`valid_until` >= :time)
                 OR (p.`valid_until` IS NULL AND p.`valid_from` <= :time)

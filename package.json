@@ -1,6 +1,6 @@
 {
     "name": "@studip/phonebook",
-    "version": "1.9.1",
+    "version": "1.9.2",
     "description": "A digital phonebook for Stud.IP with REST API",
     "license": "GPL-2.0-or-later",
     "private": true,
